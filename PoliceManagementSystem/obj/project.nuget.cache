@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "G8wg0ibOx84=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\PoliceManagementSystem.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Anda\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.2\\microsoft.aspnetcore.openapi.9.0.2.nupkg.sha512",
+    "C:\\Users\\Anda\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
