@@ -3,6 +3,34 @@
   "WorkspaceRootPath": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\migrations\\20260407050557_addmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:migrations\\20260407050557_addmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\models\\agenttransfer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:models\\agenttransfer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\models\\conference.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:models\\conference.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\models\\criminalfile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:models\\criminalfile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\models\\agent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:models\\agent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\models\\policestation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:models\\policestation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\migrations\\20260406203522_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:migrations\\20260406203522_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -13,10 +41,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|c:\\users\\anda\\desktop\\police-management-system\\policemanagementsystem\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}|PoliceManagementSystem.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,6 +55,84 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "20260407050557_AddModels.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Migrations\\20260407050557_AddModels.cs",
+              "RelativeDocumentMoniker": "Migrations\\20260407050557_AddModels.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Migrations\\20260407050557_AddModels.cs",
+              "RelativeToolTip": "Migrations\\20260407050557_AddModels.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T05:05:58.093Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AgentTransfer.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\AgentTransfer.cs",
+              "RelativeDocumentMoniker": "Models\\AgentTransfer.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\AgentTransfer.cs",
+              "RelativeToolTip": "Models\\AgentTransfer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T05:04:37.389Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Conference.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\Conference.cs",
+              "RelativeDocumentMoniker": "Models\\Conference.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\Conference.cs",
+              "RelativeToolTip": "Models\\Conference.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T05:04:10.116Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CriminalFile.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\CriminalFile.cs",
+              "RelativeDocumentMoniker": "Models\\CriminalFile.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\CriminalFile.cs",
+              "RelativeToolTip": "Models\\CriminalFile.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T05:03:46.502Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Agent.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\Agent.cs",
+              "RelativeDocumentMoniker": "Models\\Agent.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\Agent.cs",
+              "RelativeToolTip": "Models\\Agent.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAowA8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T05:03:14.614Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PoliceStation.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\PoliceStation.cs",
+              "RelativeDocumentMoniker": "Models\\PoliceStation.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Models\\PoliceStation.cs",
+              "RelativeToolTip": "Models\\PoliceStation.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-07T05:02:41.963Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "20260406203522_InitialCreate.cs",
               "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Migrations\\20260406203522_InitialCreate.cs",
               "RelativeDocumentMoniker": "Migrations\\20260406203522_InitialCreate.cs",
@@ -43,7 +145,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "Data\\AppDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-06T20:13:31.645Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -51,12 +166,11 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-06T20:14:12.238Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-06T20:14:12.238Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 8,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\appsettings.json",
               "RelativeDocumentMoniker": "appsettings.json",
@@ -64,21 +178,7 @@
               "RelativeToolTip": "appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-06T20:13:49.842Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Data\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
-              "ToolTip": "C:\\Users\\Anda\\Desktop\\Police-Management-System\\PoliceManagementSystem\\Data\\AppDbContext.cs",
-              "RelativeToolTip": "Data\\AppDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-06T20:13:31.645Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-06T20:13:49.842Z"
             }
           ]
         }
