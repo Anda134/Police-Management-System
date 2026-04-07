@@ -12,5 +12,6 @@
         public int? SuperiorId { get; set; }
         public Agent? Superior { get; set; }
         public ICollection<Agent> Subordinates { get; set; } = new List<Agent>();
+        
     }
 }
