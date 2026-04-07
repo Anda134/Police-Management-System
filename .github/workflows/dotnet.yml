@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
        run:
-         working-directory: ./Police-Management-System
+         working-directory: ./PoliceManagementSystem
 
     steps:
     - uses: actions/checkout@v4
