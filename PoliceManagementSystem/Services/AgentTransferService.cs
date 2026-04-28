@@ -133,7 +133,7 @@ namespace PoliceManagementSystem.Services
 
             transfer.IsApproved = true;
 
-            // REQ-66: apply permanent transfer — update agent's station
+            // REQ-66: apply permanent transfer ï¿½ update agent's station
             if (transfer.IsPermanent)
             {
                 transfer.Agent.PoliceStationId = transfer.ToStationId;
