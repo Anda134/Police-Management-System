@@ -3,6 +3,7 @@ using PoliceManagementSystem.Models;
 
 namespace PoliceManagementSystem.Data
 {
+    /// <summary>Main database context for the Police Management System.</summary>
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -14,6 +15,8 @@ namespace PoliceManagementSystem.Data
         public DbSet<CriminalFile> CriminalFiles { get; set; }
         public DbSet<Conference> Conferences { get; set; }
         public DbSet<AgentTransfer> AgentTransfers { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,6 +73,26 @@ namespace PoliceManagementSystem.Data
                 .WithMany()
                 .HasForeignKey(at => at.ToStationId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Agent)
+                .WithMany()
+                .HasForeignKey(u => u.AgentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<AuditLog>()
+                .HasOne(al => al.User)
+                .WithMany()
+                .HasForeignKey(al => al.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
