@@ -17,6 +17,7 @@ namespace PoliceManagementSystem.Data
         public DbSet<AgentTransfer> AgentTransfers { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<CriminalFileHistory> CriminalFileHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -93,6 +94,12 @@ namespace PoliceManagementSystem.Data
                 .WithMany()
                 .HasForeignKey(al => al.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+           modelBuilder.Entity<CriminalFileHistory>()
+                .HasOne(cfh => cfh.CriminalFile)
+                .WithMany()
+                .HasForeignKey(cfh => cfh.CriminalFileId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

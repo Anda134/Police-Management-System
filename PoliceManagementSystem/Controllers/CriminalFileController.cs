@@ -115,5 +115,15 @@ namespace PoliceManagementSystem.Controllers
             var deleted = await _service.DeleteAsync(id);
             return deleted ? NoContent() : NotFound();
         }
+
+        /// <summary>Returns the version history for a criminal file (REQ-56).</summary>
+        /// <param name="id">The file ID.</param>
+        [HttpGet("{id:int}/history")]
+        public async Task<IActionResult> GetHistory(int id)
+        {
+            var history = await _service.GetHistoryAsync(id);
+            return Ok(history);
+        }
+
     }
 }
