@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PoliceManagementSystem.Data;
 
@@ -11,9 +12,11 @@ using PoliceManagementSystem.Data;
 namespace PoliceManagementSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260428192412_AddUserAndAuditLog")]
+    partial class AddUserAndAuditLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,53 +243,6 @@ namespace PoliceManagementSystem.Migrations
                     b.ToTable("CriminalFiles");
                 });
 
-            modelBuilder.Entity("PoliceManagementSystem.Models.CriminalFileHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AgentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ChangeType")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ChangedByUsername")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("CriminalFileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PoliceStationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CriminalFileId");
-
-                    b.ToTable("CriminalFileHistories");
-                });
-
             modelBuilder.Entity("PoliceManagementSystem.Models.PoliceStation", b =>
                 {
                     b.Property<int>("Id")
@@ -460,17 +416,6 @@ namespace PoliceManagementSystem.Migrations
                     b.Navigation("Agent");
 
                     b.Navigation("PoliceStation");
-                });
-
-            modelBuilder.Entity("PoliceManagementSystem.Models.CriminalFileHistory", b =>
-                {
-                    b.HasOne("PoliceManagementSystem.Models.CriminalFile", "CriminalFile")
-                        .WithMany()
-                        .HasForeignKey("CriminalFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CriminalFile");
                 });
 
             modelBuilder.Entity("PoliceManagementSystem.Models.User", b =>
