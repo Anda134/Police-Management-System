@@ -68,7 +68,7 @@ namespace PoliceManagementSystem.Services
             };
         }
 
-        /// <summary>Creates a new agent.</summary>
+        /// <summary>Creates a new agent. Validates station head uniqueness (REQ-24).</summary>
         /// <param name="request">Agent creation data.</param>
         public async Task<AgentDto> CreateAsync(CreateAgentRequest request)
         {
@@ -82,6 +82,17 @@ namespace PoliceManagementSystem.Services
                 .AnyAsync(ps => ps.Id == request.PoliceStationId);
             if (!stationExists)
                 throw new ArgumentException("Police station not found.");
+
+            // REQ-24: max 1 station head per station
+            if (request.Role == "StationHead")
+            {
+                var headExists = await _context.Agents
+                    .AnyAsync(a => a.PoliceStationId == request.PoliceStationId
+                                && a.Role == "StationHead");
+                if (headExists)
+                    throw new InvalidOperationException(
+                        "This station already has a station head. A station can have at most one station head.");
+            }
 
             var agent = new Agent
             {
@@ -99,7 +110,7 @@ namespace PoliceManagementSystem.Services
             return (await GetByIdAsync(agent.Id))!;
         }
 
-        /// <summary>Updates an existing agent.</summary>
+        /// <summary>Updates an existing agent. Validates station head uniqueness (REQ-24).</summary>
         /// <param name="id">The agent ID.</param>
         /// <param name="request">Updated agent data.</param>
         public async Task<bool> UpdateAsync(int id, UpdateAgentRequest request)
@@ -109,6 +120,18 @@ namespace PoliceManagementSystem.Services
 
             if (string.IsNullOrWhiteSpace(request.FirstName))
                 throw new ArgumentException("First name is required.");
+
+            // REQ-24: max 1 station head per station
+            if (request.Role == "StationHead" && agent.Role != "StationHead")
+            {
+                var headExists = await _context.Agents
+                    .AnyAsync(a => a.PoliceStationId == request.PoliceStationId
+                                && a.Role == "StationHead"
+                                && a.Id != id);
+                if (headExists)
+                    throw new InvalidOperationException(
+                        "This station already has a station head. A station can have at most one station head.");
+            }
 
             agent.FirstName = request.FirstName;
             agent.LastName = request.LastName;
@@ -143,7 +166,6 @@ namespace PoliceManagementSystem.Services
 
             if (superiorId.HasValue)
             {
-                // REQ-23: prevent circular subordination
                 if (superiorId.Value == agentId)
                     throw new InvalidOperationException("An agent cannot be their own superior.");
 
@@ -151,11 +173,42 @@ namespace PoliceManagementSystem.Services
                     .AnyAsync(a => a.Id == superiorId.Value);
                 if (!superiorExists)
                     throw new ArgumentException("Superior agent not found.");
+
+                // REQ-23: verifica circular subordination in tot lantul
+                if (await WouldCreateCircularSubordinationAsync(agentId, superiorId.Value))
+                    throw new InvalidOperationException(
+                        "Assigning this superior would create a circular subordination.");
             }
 
             agent.SuperiorId = superiorId;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        /// <summary>Checks if assigning a superior would create a circular chain (REQ-23).</summary>
+        /// <param name="agentId">The agent being assigned a superior.</param>
+        /// <param name="superiorId">The proposed superior ID.</param>
+        private async Task<bool> WouldCreateCircularSubordinationAsync(int agentId, int superiorId)
+        {
+            var visited = new HashSet<int>();
+            var currentId = (int?)superiorId;
+
+            while (currentId.HasValue)
+            {
+                if (currentId.Value == agentId)
+                    return true;
+
+                if (!visited.Add(currentId.Value))
+                    break;
+
+                var current = await _context.Agents
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(a => a.Id == currentId.Value);
+
+                currentId = current?.SuperiorId;
+            }
+
+            return false;
         }
     }
 }
