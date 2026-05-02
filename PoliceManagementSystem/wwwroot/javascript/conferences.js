@@ -5,9 +5,6 @@
  * REQ-34: Create multi-station communication sessions.
  * REQ-35: Add multiple participants to a session.
  * REQ-36: Display list of connected participants.
- * REQ-37: Allow users to send and receive text messages.
- * REQ-38: Allow users to leave an active session.
- * REQ-39: Display notifications when participants join or leave.
  * REQ-40: Store basic conference metadata.
  * REQ-41: Allow users to submit a conference request.
  * REQ-42: Allow users to specify reason for conference.
@@ -51,17 +48,19 @@ async function loadConferences() {
         }
 
         conferences.forEach(conference => {
-            const scheduledTime = conference.scheduledTime
-                ? new Date(conference.scheduledTime).toLocaleString()
+            // REQ-44: Display scheduled time
+            const scheduledTime = conference.scheduledAt
+                ? new Date(conference.scheduledAt).toLocaleString()
                 : "-";
 
-            const isUpcoming = conference.scheduledTime
-                && new Date(conference.scheduledTime) > new Date();
+            // REQ-48: Check if conference is upcoming or past
+            const isUpcoming = conference.scheduledAt
+                && new Date(conference.scheduledAt) > new Date();
 
             const row = `
                 <tr>
                     <td>${conference.id}</td>
-                    <td>${conference.title ?? "-"}</td>
+                    <td>${conference.reason ?? "-"}</td>
                     <td>${conference.organizerName ?? conference.organizerId}</td>
                     <td>${scheduledTime}</td>
                     <td>
@@ -96,21 +95,28 @@ async function loadConferences() {
  * REQ-45: Chief Inspector requests get highest priority.
  */
 async function createConference() {
-    const title = document.getElementById("conferenceTitle").value.trim();
+    const reason = document.getElementById("conferenceReason").value.trim();
     const callsign = document.getElementById("conferenceCallsign").value.trim();
-    const scheduledTime = document.getElementById("conferenceTime").value;
+    const scheduledAt = document.getElementById("conferenceTime").value;
     const organizerId = parseInt(document.getElementById("conferenceOrganizer").value);
 
-    if (!title || !scheduledTime || !organizerId) {
-        showAlert("Title, scheduled time and organizer are required.", "warning");
+    if (!reason || !scheduledAt || !organizerId) {
+        showAlert("Reason, scheduled time and organizer are required.", "warning");
+        return;
+    }
+
+    if (!callsign) {
+        showAlert("Callsign is required.", "warning");
         return;
     }
 
     const conference = {
-        title,
+        reason,
         callsign,
-        scheduledTime: new Date(scheduledTime).toISOString(),
-        organizerId
+        scheduledAt: new Date(scheduledAt).toISOString(),
+        organizerId,
+        priority: 1,
+        participantIds: []
     };
 
     try {
@@ -148,22 +154,21 @@ async function viewParticipants(conferenceId) {
         const participantsList = document.getElementById("participantsList");
         participantsList.innerHTML = "";
 
-        if (!conference.participants || conference.participants.length === 0) {
+        if (!conference.participantNames || conference.participantNames.length === 0) {
             participantsList.innerHTML = `<li class="list-group-item text-muted">No participants yet.</li>`;
         } else {
             // REQ-36: Display all participants
-            conference.participants.forEach(p => {
+            conference.participantNames.forEach(name => {
                 participantsList.innerHTML += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        ?? ${p.firstName} ${p.lastName}
-                        <span class="badge bg-primary">${p.role}</span>
+                    <li class="list-group-item">
+                        ?? ${name}
                     </li>
                 `;
             });
         }
 
         document.getElementById("participantsModalTitle").textContent =
-            `Participants - ${conference.title}`;
+            `Participants - ${conference.reason}`;
 
         const modal = new bootstrap.Modal(document.getElementById("participantsModal"));
         modal.show();
@@ -223,7 +228,7 @@ async function loadOrganizers() {
  * Clears the create conference form inputs.
  */
 function clearForm() {
-    document.getElementById("conferenceTitle").value = "";
+    document.getElementById("conferenceReason").value = "";
     document.getElementById("conferenceCallsign").value = "";
     document.getElementById("conferenceTime").value = "";
     document.getElementById("conferenceOrganizer").value = "";

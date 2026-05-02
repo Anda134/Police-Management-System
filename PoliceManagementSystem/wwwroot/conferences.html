@@ -42,16 +42,16 @@
             <h4>Schedule Conference</h4>
             <div class="row g-3">
 
-                <!-- REQ-40: Conference title/metadata -->
+                <!-- REQ-42: Reason for conference -->
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold">Title *</label>
-                    <input type="text" class="form-control" id="conferenceTitle"
-                           placeholder="Conference title">
+                    <label class="form-label fw-semibold">Reason *</label>
+                    <input type="text" class="form-control" id="conferenceReason"
+                           placeholder="Reason for conference">
                 </div>
 
                 <!-- REQ-43: Personal callsign -->
                 <div class="col-md-2">
-                    <label class="form-label fw-semibold">Callsign</label>
+                    <label class="form-label fw-semibold">Callsign *</label>
                     <input type="text" class="form-control" id="conferenceCallsign"
                            placeholder="e.g. ALPHA-1">
                 </div>
@@ -96,8 +96,8 @@
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <!-- REQ-40: Conference metadata -->
-                            <th>Title</th>
+                            <!-- REQ-42: Reason -->
+                            <th>Reason</th>
                             <th>Organizer</th>
                             <!-- REQ-44: Scheduled time -->
                             <th>Scheduled Time</th>
@@ -126,7 +126,6 @@
                     <ul class="list-group" id="participantsList"></ul>
                 </div>
                 <div class="modal-footer">
-                    <!-- REQ-38: Leave session -->
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         Close
                     </button>
