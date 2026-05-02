@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using PoliceManagementSystem.BackgroundServices;
 using PoliceManagementSystem.Data;
 using PoliceManagementSystem.Services;
 using PoliceManagementSystem.Services.Interfaces;
@@ -77,6 +78,9 @@ builder.Services.AddScoped<ICriminalFileService, CriminalFileService>();
 builder.Services.AddScoped<IConferenceService, ConferenceService>();
 builder.Services.AddScoped<IAgentTransferService, AgentTransferService>();
 
+// REQ-70: Background service pentru auto-revert transferuri temporare expirate
+builder.Services.AddHostedService<TransferExpiryService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -86,6 +90,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -137,6 +137,8 @@ namespace PoliceManagementSystem.Services
             _context.CriminalFiles.Add(file);
             await _context.SaveChangesAsync();
 
+            await SaveHistoryAsync(file, "system", "CREATE");
+
             await _auditLogging.LogAsync(
                 action: "FILE_CREATE",
                 entityType: "CriminalFile",
@@ -166,6 +168,8 @@ namespace PoliceManagementSystem.Services
             file.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            await SaveHistoryAsync(file, "system", "UPDATE");
 
             await _auditLogging.LogAsync(
                 action: "FILE_UPDATE",
@@ -198,6 +202,8 @@ namespace PoliceManagementSystem.Services
 
             await _context.SaveChangesAsync();
 
+            await SaveHistoryAsync(file, "system", "TRANSFER");
+
             await _auditLogging.LogAsync(
                 action: "FILE_TRANSFER",
                 entityType: "CriminalFile",
@@ -227,6 +233,52 @@ namespace PoliceManagementSystem.Services
             );
 
             return true;
+        }
+
+        /// <summary>Returns the version history for a criminal file (REQ-56).</summary>
+        /// <param name="fileId">The file ID.</param>
+        public async Task<IEnumerable<CriminalFileHistoryDto>> GetHistoryAsync(int fileId)
+        {
+            return await _context.CriminalFileHistories
+                .Where(cfh => cfh.CriminalFileId == fileId)
+                .OrderByDescending(cfh => cfh.ChangedAt)
+                .Select(cfh => new CriminalFileHistoryDto
+                {
+                    Id = cfh.Id,
+                    CriminalFileId = cfh.CriminalFileId,
+                    Title = cfh.Title,
+                    Category = cfh.Category,
+                    Status = cfh.Status,
+                    AgentId = cfh.AgentId,
+                    PoliceStationId = cfh.PoliceStationId,
+                    ChangedByUsername = cfh.ChangedByUsername,
+                    ChangeType = cfh.ChangeType,
+                    ChangedAt = cfh.ChangedAt
+                })
+                .ToListAsync();
+        }
+
+        /// <summary>Saves a snapshot of the file to history.</summary>
+        /// <param name="file">The file to snapshot.</param>
+        /// <param name="changedByUsername">Username of the user making the change.</param>
+        /// <param name="changeType">Type of change (CREATE, UPDATE, TRANSFER).</param>
+        private async Task SaveHistoryAsync(CriminalFile file, string changedByUsername, string changeType)
+        {
+            var history = new CriminalFileHistory
+            {
+                CriminalFileId = file.Id,
+                Title = file.Title,
+                Category = file.Category,
+                Status = file.Status,
+                AgentId = file.AgentId,
+                PoliceStationId = file.PoliceStationId,
+                ChangedByUsername = changedByUsername,
+                ChangeType = changeType,
+                ChangedAt = DateTime.UtcNow
+            };
+
+            _context.CriminalFileHistories.Add(history);
+            await _context.SaveChangesAsync();
         }
     }
 }

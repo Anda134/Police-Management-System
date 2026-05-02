@@ -36,5 +36,10 @@ namespace PoliceManagementSystem.Services.Interfaces
         /// <summary>Deletes a criminal file. Requires authorization (REQ-55).</summary>
         /// <param name="id">The file ID.</param>
         Task<bool> DeleteAsync(int id);
+
+        /// <summary>Returns the version history for a criminal file (REQ-56).</summary>
+        /// <param name="fileId">The file ID.</param>
+        Task<IEnumerable<CriminalFileHistoryDto>> GetHistoryAsync(int fileId);
+
     }
 }
