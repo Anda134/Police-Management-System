@@ -5,7 +5,7 @@
  */
 
 /** Base URL for all API requests. */
-const API_BASE_URL = "https://localhost:5001/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 /**
  * REQ-73: Retrieves the stored JWT token from localStorage.
