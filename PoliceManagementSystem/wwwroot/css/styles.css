@@ -1,260 +1,731 @@
+﻿/* ============================================================
+   styles.css — Police Inspectorate Global Styles
+   Dark Navy Theme matching SRS Mockup
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   CSS Variables — culori și dimensiuni globale
+   ------------------------------------------------------------ */
 :root {
-    --bg-main: #eef4fb;
-    --blue-dark: #071b3a;
-    --blue-primary: #0d47a1;
-    --blue-secondary: #1565c0;
-    --blue-light: #e3f2fd;
-    --cyan: #00bcd4;
-    --text-dark: #1f2937;
-    --text-muted: #6b7280;
-    --white: #ffffff;
-    --danger: #dc3545;
-    --success: #198754;
-    --warning: #ffc107;
-    --border: #dbeafe;
-    --shadow: 0 10px 30px rgba(13, 71, 161, 0.12);
+    --bg-dark: #0a1628;
+    --bg-sidebar: #0d1f3c;
+    --bg-card: #112240;
+    --bg-card-hover: #162d4a;
+    --bg-input: #0d1f3c;
+    --accent-blue: #1565c0;
+    --accent-blue-light: #1e88e5;
+    --accent-cyan: #00bcd4;
+    --text-primary: #e8edf5;
+    --text-secondary: #8fa8c8;
+    --text-muted: #4a6080;
+    --border: #1a3a5c;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --sidebar-width: 240px;
+    --danger: #c62828;
+    --danger-light: #ef5350;
+    --success: #2e7d32;
+    --success-light: #4caf50;
+    --warning-light: #ffb300;
 }
 
+/* ------------------------------------------------------------
+   Reset global
+   ------------------------------------------------------------ */
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
-    background: var(--bg-main);
-    color: var(--text-dark);
+    background: var(--bg-dark);
+    color: var(--text-primary);
     font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
 }
 
-/* Layout */
+/* ------------------------------------------------------------
+   App Shell — layout principal sidebar + content
+   ------------------------------------------------------------ */
 .app-shell {
     display: flex;
     min-height: 100vh;
 }
 
+/* ------------------------------------------------------------
+   Sidebar — navigare laterală stânga
+   ------------------------------------------------------------ */
 .sidebar {
-    width: 260px;
-    background: linear-gradient(180deg, #071b3a 0%, #0d47a1 100%);
-    color: var(--white);
-    padding: 24px 18px;
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #060f1e 0%, #0d2144 100%);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
     position: fixed;
-    inset: 0 auto 0 0;
-    box-shadow: 8px 0 24px rgba(7, 27, 58, 0.25);
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 100;
+    padding: 20px 0;
 }
 
+/* Logo / brand din sidebar */
 .sidebar-brand {
-    font-size: 1.35rem;
-    font-weight: 800;
-    margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-decoration: none;
 }
 
+/* Icon scut din brand */
+.sidebar-brand-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--accent-blue);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* Info utilizator logat din sidebar */
 .sidebar-user {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 16px;
-    padding: 14px;
-    margin-bottom: 24px;
+    margin: 16px 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 12px 14px;
 }
 
-    .sidebar-user small {
-        color: #cfe8ff;
-    }
+.sidebar-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
 
+.sidebar-user-role {
+    font-size: 11px;
+    color: var(--accent-cyan);
+    margin-top: 2px;
+}
+
+/* Navigare linkuri sidebar */
 .sidebar-nav {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    padding: 8px 12px;
+    gap: 4px;
+    overflow-y: auto;
 }
 
 .sidebar-link {
-    color: #dbeafe;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    color: var(--text-secondary);
     text-decoration: none;
-    padding: 12px 14px;
-    border-radius: 14px;
+    font-size: 13px;
     font-weight: 600;
-    transition: 0.2s ease;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
 }
 
-    .sidebar-link:hover,
-    .sidebar-link.active {
-        background: rgba(255, 255, 255, 0.18);
-        color: var(--white);
+    .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
         transform: translateX(3px);
     }
 
-.sidebar-logout {
-    margin-top: 28px;
+    /* Link activ din sidebar */
+    .sidebar-link.active {
+        background: rgba(21, 101, 192, 0.25);
+        color: #60a5fa;
+        border-left-color: var(--accent-blue-light);
+    }
+
+    /* Icon din link sidebar */
+    .sidebar-link .nav-icon {
+        font-size: 16px;
+        width: 22px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+/* Buton logout din sidebar */
+.sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+}
+
+.btn-logout {
     width: 100%;
-    border-radius: 14px;
+    padding: 10px;
+    background: rgba(198, 40, 40, 0.15);
+    border: 1px solid rgba(239, 83, 80, 0.3);
+    color: var(--danger-light);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
 }
 
+    .btn-logout:hover {
+        background: var(--danger);
+        border-color: var(--danger);
+        color: white;
+    }
+
+/* ------------------------------------------------------------
+   Main Content — zona principală de conținut
+   ------------------------------------------------------------ */
 .main-content {
-    margin-left: 260px;
-    width: calc(100% - 260px);
-    padding: 28px;
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    padding: 24px;
+    min-height: 100vh;
 }
 
-/* Header */
+/* ------------------------------------------------------------
+   Page Header — titlul paginii cu gradient
+   ------------------------------------------------------------ */
 .page-header {
-    background: linear-gradient(135deg, var(--blue-primary), var(--blue-secondary));
-    color: var(--white);
-    padding: 26px;
-    border-radius: 24px;
+    background: linear-gradient(135deg, #0d2144, #1565c0);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px 26px;
+    margin-bottom: 22px;
     box-shadow: var(--shadow);
-    margin-bottom: 24px;
 }
 
     .page-header h1 {
-        margin: 0;
+        font-size: 20px;
         font-weight: 800;
+        color: var(--text-primary);
+        margin: 0;
     }
 
     .page-header p {
-        margin: 8px 0 0;
-        color: #dbeafe;
+        font-size: 13px;
+        color: #93c5fd;
+        margin: 6px 0 0;
     }
 
-/* Cards */
+/* ------------------------------------------------------------
+   Cards — containere pentru conținut
+   ------------------------------------------------------------ */
 .card {
+    background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 22px;
+    border-radius: 18px;
     box-shadow: var(--shadow);
-    background: var(--white);
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.form-section {
-    margin-bottom: 24px;
+    .card:hover {
+        border-color: rgba(30, 136, 229, 0.3);
+    }
+
+    .card h4,
+    .card h5 {
+        color: var(--text-primary);
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+/* Header card cu titlu și acțiune */
+.card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
 }
 
-.card h4,
-.card h5 {
-    color: var(--blue-dark);
+.card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.card-link {
+    font-size: 12px;
+    color: var(--accent-cyan);
+    text-decoration: none;
+}
+
+    .card-link:hover {
+        color: var(--text-primary);
+    }
+
+/* ------------------------------------------------------------
+   Dashboard — grid statistici și hartă
+   ------------------------------------------------------------ */
+
+/* Grid pentru cardurile de statistici (3 coloane) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+/* Card individual statistică */
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Icon colorat în stat card */
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.stat-icon-blue {
+    background: rgba(21, 101, 192, 0.2);
+}
+
+.stat-icon-green {
+    background: rgba(46, 125, 50, 0.2);
+}
+
+.stat-icon-red {
+    background: rgba(198, 40, 40, 0.2);
+}
+
+.stat-icon-cyan {
+    background: rgba(0, 188, 212, 0.2);
+}
+
+/* Număr mare în stat card */
+.stat-number {
+    font-size: 28px;
     font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
 }
 
-/* Forms */
+/* Label mic sub număr */
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* Grid dashboard hartă + panel dreapta */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+}
+
+/* Container hartă Leaflet */
+.map-container {
+    height: 520px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+/* Panel detalii stație din dreapta hărții */
+.details-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Card detalii stație selectată */
+.station-detail-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+}
+
+/* Icon stație în panel detalii */
+.station-icon {
+    width: 46px;
+    height: 46px;
+    background: rgba(21, 101, 192, 0.25);
+    border: 1px solid rgba(30, 136, 229, 0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.station-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.station-address {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.station-coords {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 10px;
+}
+
+/* Lista de personal dintr-o stație */
+.personnel-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.personnel-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+    .personnel-item:last-child {
+        border-bottom: none;
+    }
+
+.personnel-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.personnel-role {
+    font-size: 11px;
+    color: var(--accent-cyan);
+}
+
+/* Mesaj placeholder când nu e selectată nicio stație */
+.placeholder-message {
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* ------------------------------------------------------------
+   Tables — tabele de date
+   ------------------------------------------------------------ */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .table th {
+        background: rgba(13, 33, 68, 0.8);
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 11px 14px;
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table td {
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-primary);
+        font-size: 13px;
+    }
+
+    .table tr:hover td {
+        background: rgba(21, 101, 192, 0.08);
+    }
+
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+
+/* ------------------------------------------------------------
+   Badges — etichete colorate pentru status
+   ------------------------------------------------------------ */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-success {
+    background: rgba(46, 125, 50, 0.2);
+    color: var(--success-light);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badge-danger {
+    background: rgba(198, 40, 40, 0.2);
+    color: var(--danger-light);
+    border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.badge-warning {
+    background: rgba(245, 127, 23, 0.2);
+    color: var(--warning-light);
+    border: 1px solid rgba(255, 179, 0, 0.3);
+}
+
+.badge-info {
+    background: rgba(0, 188, 212, 0.15);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 188, 212, 0.3);
+}
+
+.badge-secondary {
+    background: rgba(74, 96, 128, 0.2);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+/* ------------------------------------------------------------
+   Buttons — butoane de acțiune
+   ------------------------------------------------------------ */
+.btn {
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Buton principal albastru */
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-light));
+    color: white;
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--accent-blue-light), var(--accent-cyan));
+        transform: translateY(-1px);
+    }
+
+/* Buton success verde */
+.btn-success {
+    background: rgba(46, 125, 50, 0.8);
+    color: white;
+}
+
+    .btn-success:hover {
+        background: var(--success);
+    }
+
+/* Buton pericol roșu */
+.btn-danger {
+    background: rgba(198, 40, 40, 0.8);
+    color: white;
+}
+
+    .btn-danger:hover {
+        background: var(--danger);
+    }
+
+/* Buton secundar transparent */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--text-primary);
+    }
+
+/* Buton mic */
+.btn-sm {
+    padding: 5px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+/* ------------------------------------------------------------
+   Forms — câmpuri de input și select
+   ------------------------------------------------------------ */
+.form-group {
+    margin-bottom: 16px;
+}
+
 .form-label {
-    color: var(--blue-dark);
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .form-control,
 .form-select {
-    border-radius: 12px;
-    border: 1px solid #cbd5e1;
-    padding: 10px 12px;
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(13, 31, 60, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
     .form-control:focus,
     .form-select:focus {
-        border-color: var(--blue-secondary);
-        box-shadow: 0 0 0 0.2rem rgba(21, 101, 192, 0.15);
+        border-color: var(--accent-blue-light);
+        box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
     }
 
-/* Buttons */
-.btn {
-    border-radius: 12px;
-    font-weight: 700;
-}
-
-.btn-primary,
-.btn-success {
-    background: linear-gradient(135deg, var(--blue-primary), var(--blue-secondary));
-    border: none;
-}
-
-    .btn-primary:hover,
-    .btn-success:hover {
-        background: linear-gradient(135deg, var(--blue-secondary), var(--cyan));
+    .form-control::placeholder {
+        color: var(--text-muted);
     }
 
-.btn-danger {
-    border: none;
-}
-
-/* Tables */
-.table {
-    margin-bottom: 0;
-}
-
-    .table thead th {
-        background: var(--blue-dark) !important;
-        color: var(--white);
-        border: none;
-        padding: 14px;
+    .form-select option {
+        background: var(--bg-card);
+        color: var(--text-primary);
     }
 
-    .table tbody td {
-        vertical-align: middle;
-        padding: 13px;
-    }
-
-.table-hover tbody tr:hover {
-    background-color: var(--blue-light);
-}
-
-/* Badges */
-.badge {
-    border-radius: 999px;
-    padding: 7px 10px;
-}
-
-/* Alerts */
-#alertBox {
-    margin-bottom: 18px;
-}
-
+/* ------------------------------------------------------------
+   Alerts — mesaje de succes/eroare
+   ------------------------------------------------------------ */
 .alert {
-    border-radius: 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 500;
 }
 
-/* Dashboard cards */
-.dashboard-card {
-    min-height: 170px;
-    border-radius: 24px;
-    border: 1px solid var(--border);
-    background: var(--white);
-    box-shadow: var(--shadow);
-    padding: 24px;
-    transition: 0.2s ease;
+.alert-success {
+    background: rgba(46, 125, 50, 0.15);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    color: var(--success-light);
 }
 
-    .dashboard-card:hover {
-        transform: translateY(-4px);
-    }
+.alert-danger {
+    background: rgba(198, 40, 40, 0.15);
+    border: 1px solid rgba(239, 83, 80, 0.3);
+    color: var(--danger-light);
+}
 
-    .dashboard-card h5 {
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: var(--blue-dark);
-    }
+.alert-warning {
+    background: rgba(245, 127, 23, 0.15);
+    border: 1px solid rgba(255, 179, 0, 0.3);
+    color: var(--warning-light);
+}
 
-/* Login */
+/* ------------------------------------------------------------
+   Login Page — pagina de autentificare
+   ------------------------------------------------------------ */
 .login-page {
     min-height: 100vh;
-    background: radial-gradient(circle at top left, rgba(0, 188, 212, 0.35), transparent 35%), linear-gradient(135deg, #071b3a, #0d47a1);
+    background: radial-gradient(circle at top left, rgba(0, 188, 212, 0.2), transparent 40%), linear-gradient(135deg, #050d1a, #0a1f3d);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* Card formular login */
 .login-card {
     width: 100%;
     max-width: 420px;
-    border-radius: 26px;
-    padding: 34px;
-    background: var(--white);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 36px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
 }
 
-/* Mobile */
+/* Titlul paginii de login */
+.login-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+/* Subtitlul paginii de login */
+.login-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+/* ------------------------------------------------------------
+   Empty State — mesaj când nu există date
+   ------------------------------------------------------------ */
+.empty-state {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------------
+   Scrollbar personalizat
+   ------------------------------------------------------------ */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+    }
+
+/* ------------------------------------------------------------
+   Responsive — ecrane mici
+   ------------------------------------------------------------ */
 @media (max-width: 900px) {
     .sidebar {
         position: static;
         width: 100%;
-        min-height: auto;
+        height: auto;
     }
 
     .app-shell {
@@ -264,6 +735,121 @@ body {
     .main-content {
         margin-left: 0;
         width: 100%;
-        padding: 18px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
     }
 }
+/* ------------------------------------------------------------
+   Map Marker — iconița stației pe hartă Leaflet
+   ------------------------------------------------------------ */
+.map-marker {
+    width: 38px;
+    height: 38px;
+    background: var(--accent-blue);
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+    .map-marker:hover {
+        transform: scale(1.15);
+    }
+
+/* Tooltip hartă */
+.map-tooltip {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}
+
+/* ------------------------------------------------------------
+   Hierarchy Tree — arbore de subordonare agenți REQ-21
+   ------------------------------------------------------------ */
+.hierarchy-tree {
+    padding: 8px 0;
+}
+
+.hierarchy-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hierarchy-card {
+    background: rgba(21, 101, 192, 0.2);
+    border: 1px solid rgba(30, 136, 229, 0.3);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    min-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+    .hierarchy-card.root {
+        background: rgba(0, 188, 212, 0.2);
+        border-color: rgba(0, 188, 212, 0.4);
+        color: var(--accent-cyan);
+    }
+
+    .hierarchy-card.station-head {
+        background: rgba(21, 101, 192, 0.25);
+        border-color: rgba(30, 136, 229, 0.4);
+    }
+
+.hierarchy-connector-v {
+    width: 2px;
+    height: 16px;
+    background: var(--border);
+}
+
+.hierarchy-children {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    position: relative;
+}
+
+    .hierarchy-children::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 60px);
+        height: 2px;
+        background: var(--border);
+    }
+
+.hierarchy-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+    .hierarchy-child::before {
+        content: "";
+        width: 2px;
+        height: 16px;
+        background: var(--border);
+    }
