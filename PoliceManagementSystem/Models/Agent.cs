@@ -31,5 +31,11 @@
 
         /// <summary>Agents that report to this agent (REQ-21, REQ-23).</summary>
         public ICollection<Agent> Subordinates { get; set; } = new List<Agent>();
+
+        /// <summary>URL to agent's profile picture. Can be base64 data or file path.</summary>
+        public string? ProfileImageUrl { get; set; }
+
+        /// <summary>Office/room assignment for station layout visualization. E.g. "Investigation Wing", "Patrol Office", "Records"</summary>
+        public string? RoomAssignment { get; set; } = "Patrol Office";
     }
 }

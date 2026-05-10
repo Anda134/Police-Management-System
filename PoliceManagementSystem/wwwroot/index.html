@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- REQ-73: Protected page - requires authentication -->
     <title>Dashboard - Police Inspectorate</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -17,12 +16,10 @@
                 <div class="sidebar-brand-icon">🛡️</div>
                 Police Inspectorate
             </a>
-
             <div class="sidebar-user">
                 <div class="sidebar-user-name" id="navUsername">-</div>
                 <div class="sidebar-user-role" id="navRole">-</div>
             </div>
-
             <nav class="sidebar-nav">
                 <a href="index.html" class="sidebar-link active">
                     <span class="nav-icon">🏠</span> Dashboard
@@ -43,7 +40,6 @@
                     <span class="nav-icon">🔄</span> Transfers
                 </a>
             </nav>
-
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">⬅ Logout</button>
             </div>
@@ -56,6 +52,7 @@
                 <h1>🗺️ Dashboard</h1>
                 <p>Police stations overview and personnel allocation</p>
             </div>
+        </aside>
 
             <!-- Stats Grid REQ-9 -->
             <div class="stats-grid">
@@ -88,21 +85,31 @@
                 </div>
             </div>
 
-            <!-- Dashboard Grid: Harta + Panel Dreapta -->
+            <!-- Dashboard Grid -->
             <div class="dashboard-grid">
 
                 <!-- Harta REQ-9, REQ-10, REQ-11, REQ-12 -->
                 <div class="card">
                     <div class="card-header-row">
                         <span class="card-title">🗺️ Station Map</span>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-secondary btn-sm" onclick="toggleConnections()">
+                                👁️ Hide Connections
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="enableAddStation()">
+                                ➕ Add Station
+                            </button>
+                        </div>
                     </div>
                     <div id="map" class="map-container"></div>
+                    <div id="mapClickHint" style="display:none;" class="map-click-hint">
+                        📍 Click on the map to place the new station
+                    </div>
                 </div>
 
                 <!-- Panel Detalii Statie REQ-15 -->
                 <div class="details-panel">
 
-                    <!-- Precinct Details -->
                     <div class="card" id="precinctDetails">
                         <h5>📍 Precinct Details</h5>
                         <div class="placeholder-message">
@@ -110,19 +117,16 @@
                         </div>
                     </div>
 
-                    <!-- Assigned Personnel REQ-17 -->
                     <div class="card" id="precinctPersonnel" style="display:none;">
                         <h5>👮 Assigned Personnel</h5>
                         <ul class="personnel-list" id="personnelList"></ul>
                     </div>
 
-                    <!-- Hierarchy REQ-21 -->
                     <div class="card" id="precinctHierarchy" style="display:none;">
                         <h5>🌳 Hierarchy</h5>
                         <div class="hierarchy-tree" id="hierarchyTree"></div>
                     </div>
 
-                    <!-- Recent Activity -->
                     <div class="card" id="recentActivity" style="display:none;">
                         <h5>🕐 Recent Activity</h5>
                         <div id="activityContent" class="placeholder-message"></div>
@@ -131,36 +135,51 @@
                 </div>
 
             </div>
+        </div>
+    </div>
 
+    <!-- REQ-5: Modal plasare stație pe hartă -->
+    <div id="addStationModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+        <div class="card" style="width:420px;padding:28px;">
+            <h5>📍 Add New Station</h5>
+            <p style="font-size:12px;color:var(--text-muted);">Location selected on map</p>
+            <div class="form-group">
+                <label class="form-label">Name *</label>
+                <input type="text" class="form-control" id="modalStationName" placeholder="e.g. Secția 4 Craiova">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-control" id="modalStationAddress" placeholder="Street address">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Latitude</label>
+                <input type="text" class="form-control" id="modalStationLat" readonly>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Longitude</label>
+                <input type="text" class="form-control" id="modalStationLng" readonly>
+            </div>
+            <div id="modalError" class="alert alert-danger" style="display:none;"></div>
+            <div style="display:flex;gap:10px;margin-top:16px;">
+                <button class="btn btn-primary" onclick="saveNewStation()">➕ Add Station</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
         </div>
     </div>
 
     <script src="javascript/config.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        /**
-         * REQ-73: Verify authentication on page load.
-         */
         requireAuth();
 
-        /**
-         * REQ-75: Display current user info in sidebar.
-         */
         document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
         document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
 
-        /**
-         * REQ-9: Initialize Leaflet map centered on Craiova.
-         */
         const map = L.map("map").setView([44.3302, 23.7949], 13);
-
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: "© OpenStreetMap contributors"
         }).addTo(map);
 
-        /**
-         * REQ-10: Custom police station icon for map markers.
-         */
         const policeIcon = L.divIcon({
             html: `<div class="map-marker">🛡️</div>`,
             className: "",
@@ -171,10 +190,9 @@
         let allStations = [];
         let allAgents = [];
         let stationLines = [];
+        let addingStation = false;
+        let tempMarker = null;
 
-        /**
-         * REQ-9, REQ-10, REQ-11: Load stations, draw markers and connection lines.
-         */
         async function loadMap() {
             try {
                 const [stationsRes, agentsRes, filesRes] = await Promise.all([
@@ -196,23 +214,28 @@
                 document.getElementById("statAgents").textContent = allAgents.length;
 
                 drawConnections();
-
-                allStations.forEach(station => {
-                    const marker = L.marker([station.latitude, station.longitude], { icon: policeIcon })
-                        .addTo(map)
-                        .bindTooltip(station.name, {
-                            permanent: true,
-                            direction: "bottom",
-                            offset: [0, 12],
-                            className: "map-tooltip"
-                        });
-
-                    marker.on("click", () => showStationDetails(station));
-                });
+                drawMarkers();
 
             } catch (err) {
                 console.error("Failed to load map:", err);
             }
+        }
+
+        /**
+         * REQ-10: Draw markers for all stations.
+         */
+        function drawMarkers() {
+            allStations.forEach(station => {
+                const marker = L.marker([station.latitude, station.longitude], { icon: policeIcon })
+                    .addTo(map)
+                    .bindTooltip(station.name, {
+                        permanent: true,
+                        direction: "bottom",
+                        offset: [0, 12],
+                        className: "map-tooltip"
+                    });
+                marker.on("click", () => showStationDetails(station));
+            });
         }
 
         /**
@@ -229,7 +252,7 @@
 
                     const line = L.polyline(
                         [[s1.latitude, s1.longitude], [s2.latitude, s2.longitude]],
-                        { color: "#00bcd4", weight: 1.5, opacity: 0.4, dashArray: "6,6" }
+                        { color: "#00bcd4", weight: 2.5, opacity: 0.8, dashArray: "8,5" }
                     ).addTo(map);
 
                     const dist = map.distance(
@@ -243,38 +266,128 @@
         }
 
         /**
- * REQ-15: Show detailed information for selected station.
- * REQ-21: Show agent hierarchy tree for selected station.
- * @param {Object} station - The selected station.
- */
+         * REQ-16: Toggle visibility of interconnection lines.
+         */
+        let connectionsVisible = true;
+        function toggleConnections() {
+            connectionsVisible = !connectionsVisible;
+            stationLines.forEach(l => {
+                if (connectionsVisible) map.addLayer(l);
+                else map.removeLayer(l);
+            });
+            document.querySelector('[onclick="toggleConnections()"]').textContent =
+                connectionsVisible ? "👁️ Hide Connections" : "👁️ Show Connections";
+        }
+
+        /**
+         * REQ-5: Enable add station mode - next click on map places a station.
+         */
+        function enableAddStation() {
+            addingStation = true;
+            document.getElementById("mapClickHint").style.display = "block";
+            map.getContainer().style.cursor = "crosshair";
+        }
+
+        /**
+         * REQ-5: Handle map click to place new station.
+         */
+        map.on("click", function (e) {
+            if (!addingStation) return;
+
+            const { lat, lng } = e.latlng;
+
+            if (tempMarker) map.removeLayer(tempMarker);
+            tempMarker = L.marker([lat, lng], { icon: policeIcon }).addTo(map);
+
+            document.getElementById("modalStationLat").value = lat.toFixed(6);
+            document.getElementById("modalStationLng").value = lng.toFixed(6);
+            document.getElementById("modalStationName").value = "";
+            document.getElementById("modalStationAddress").value = "";
+            document.getElementById("modalError").style.display = "none";
+
+            const modal = document.getElementById("addStationModal");
+            modal.style.display = "flex";
+
+            addingStation = false;
+            document.getElementById("mapClickHint").style.display = "none";
+            map.getContainer().style.cursor = "";
+        });
+
+        /**
+         * REQ-5, REQ-7, REQ-8: Save new station to API.
+         */
+        async function saveNewStation() {
+            const name = document.getElementById("modalStationName").value.trim();
+            const address = document.getElementById("modalStationAddress").value.trim();
+            const lat = parseFloat(document.getElementById("modalStationLat").value);
+            const lng = parseFloat(document.getElementById("modalStationLng").value);
+
+            if (!name) {
+                document.getElementById("modalError").textContent = "Station name is required.";
+                document.getElementById("modalError").style.display = "block";
+                return;
+            }
+
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/PoliceStation`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, address, latitude: lat, longitude: lng })
+                });
+
+                if (res && res.ok) {
+                    closeModal();
+                    // REQ-13: Reload map after adding station
+                    await loadMap();
+                } else {
+                    document.getElementById("modalError").textContent = "Failed to create station.";
+                    document.getElementById("modalError").style.display = "block";
+                }
+            } catch (err) {
+                document.getElementById("modalError").textContent = "Connection error.";
+                document.getElementById("modalError").style.display = "block";
+            }
+        }
+
+        /**
+         * Close add station modal and remove temp marker.
+         */
+        function closeModal() {
+            document.getElementById("addStationModal").style.display = "none";
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+                tempMarker = null;
+            }
+        }
+
+        /**
+         * REQ-15: Show detailed information for selected station.
+         */
         function showStationDetails(station) {
             document.getElementById("precinctDetails").innerHTML = `
-        <h5>📍 Precinct Details</h5>
-        <div class="station-detail-card">
-            <div class="station-icon">🛡️</div>
-            <div>
-                <div class="station-name">${station.name}</div>
-                <div class="station-address">${station.address || "No address"}</div>
-            </div>
-        </div>
-        <div class="station-coords">📍 ${station.latitude}, ${station.longitude}</div>
-    `;
+                <h5>📍 Precinct Details</h5>
+                <div class="station-detail-card">
+                    <div class="station-icon">🛡️</div>
+                    <div>
+                        <div class="station-name">${station.name}</div>
+                        <div class="station-address">${station.address || "No address"}</div>
+                    </div>
+                </div>
+                <div class="station-coords">📍 ${station.latitude}, ${station.longitude}</div>
+            `;
 
             const agents = allAgents.filter(a => a.policeStationId === station.id);
             const personnelCard = document.getElementById("precinctPersonnel");
             const hierarchyCard = document.getElementById("precinctHierarchy");
 
             if (agents.length > 0) {
-                // REQ-17: Assigned personnel list
                 document.getElementById("personnelList").innerHTML = agents.map(a => `
-            <li class="personnel-item">
-                <span class="personnel-name">${a.firstName} ${a.lastName}</span>
-                <span class="personnel-role">${a.role}</span>
-            </li>
-        `).join("");
+                    <li class="personnel-item">
+                        <span class="personnel-name">${a.firstName} ${a.lastName}</span>
+                        <span class="personnel-role">${a.role}</span>
+                    </li>
+                `).join("");
                 personnelCard.style.display = "block";
-
-                // REQ-21: Build hierarchy tree
                 buildHierarchy(agents);
                 hierarchyCard.style.display = "block";
             } else {
@@ -289,13 +402,10 @@
         }
 
         /**
-         * REQ-21: Builds and renders the agent hierarchy tree.
-         * @param {Array} agents - Agents belonging to the selected station.
+         * REQ-22: Builds and renders the agent hierarchy tree.
          */
         function buildHierarchy(agents) {
             const container = document.getElementById("hierarchyTree");
-
-            // Găsește ChiefInspector sau StationHead ca rădăcină
             const root = agents.find(a => a.role === "ChiefInspector") ||
                 agents.find(a => a.role === "StationHead") ||
                 agents.find(a => !a.superiorId);
@@ -304,27 +414,20 @@
                 container.innerHTML = `<div class="empty-state">No hierarchy data.</div>`;
                 return;
             }
-
             container.innerHTML = renderNode(root, agents, 0);
         }
 
-        /**
-         * Recursively renders a hierarchy node and its children.
-         * @param {Object} agent - The current agent node.
-         * @param {Array} allAgents - All agents in the station.
-         * @param {number} depth - Current depth level.
-         */
         function renderNode(agent, allAgents, depth) {
             const children = allAgents.filter(a => a.superiorId === agent.id);
             const cardClass = agent.role === "ChiefInspector" ? "root" :
                 agent.role === "StationHead" ? "station-head" : "";
 
             let html = `
-        <div class="hierarchy-node">
-            <div class="hierarchy-card ${cardClass}" title="${agent.firstName} ${agent.lastName} (${agent.role})">
-                ${agent.firstName} ${agent.lastName}
-            </div>
-    `;
+                <div class="hierarchy-node">
+                    <div class="hierarchy-card ${cardClass}" title="${agent.firstName} ${agent.lastName} (${agent.role})">
+                        ${agent.firstName} ${agent.lastName}
+                    </div>
+            `;
 
             if (children.length > 0) {
                 html += `<div class="hierarchy-connector-v"></div>`;
