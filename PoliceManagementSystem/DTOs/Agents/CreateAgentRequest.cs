@@ -9,5 +9,7 @@
         public string Role { get; set; } = string.Empty;
         public int PoliceStationId { get; set; }
         public int? SuperiorId { get; set; }
+        public string? ProfileImageUrl { get; set; }
+        public string? RoomAssignment { get; set; }
     }
 }
