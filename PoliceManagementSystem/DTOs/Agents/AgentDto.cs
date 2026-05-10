@@ -12,5 +12,7 @@
         public string PoliceStationName { get; set; } = string.Empty;
         public int? SuperiorId { get; set; }
         public string? SuperiorName { get; set; }
+        public string? ProfileImageUrl { get; set; }
+        public string? RoomAssignment { get; set; }
     }
 }
