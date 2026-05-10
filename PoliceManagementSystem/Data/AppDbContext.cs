@@ -27,7 +27,7 @@ namespace PoliceManagementSystem.Data
                 .HasOne(a => a.PoliceStation)
                 .WithMany(ps => ps.Agents)
                 .HasForeignKey(a => a.PoliceStationId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Agent>()
                 .HasOne(a => a.Superior)
