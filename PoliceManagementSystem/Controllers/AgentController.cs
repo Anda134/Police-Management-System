@@ -48,12 +48,15 @@ namespace PoliceManagementSystem.Controllers
                 var created = await _service.CreateAsync(request);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
+            catch (InvalidOperationException ex) 
+            {
+                return BadRequest(ex.Message);
+            }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-
         /// <summary>Updates an existing agent. Admin and ChiefInspector only (REQ-19).</summary>
         /// <param name="id">The agent ID.</param>
         /// <param name="request">Updated agent data.</param>
@@ -103,8 +106,15 @@ namespace PoliceManagementSystem.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            return deleted ? NoContent() : NotFound();
+            try
+            {
+                var deleted = await _service.DeleteAsync(id);
+                return deleted ? NoContent() : NotFound();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
