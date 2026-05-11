@@ -31,5 +31,7 @@
 
         /// <summary>Navigation property for the assigned agent.</summary>
         public Agent Agent { get; set; } = null!;
+        /// <summary>Detailed investigation notes, suspects, witnesses and interrogations.</summary>
+        public string? Details { get; set; }
     }
 }
