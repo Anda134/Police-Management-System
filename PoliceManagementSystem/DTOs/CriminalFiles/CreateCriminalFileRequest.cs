@@ -7,7 +7,7 @@
         public string Category { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public int PoliceStationId { get; set; }
-        public int AgentId { get; set; }
+        public int? AgentId { get; set; }
         public string? Details { get; set; }
     }
 }
