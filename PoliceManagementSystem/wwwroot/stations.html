@@ -138,9 +138,6 @@
 
         loadStations();
 
-        /**
-         * REQ-1, REQ-9: Load and display all stations.
-         */
         async function loadStations() {
             try {
                 const [stationsRes, agentsRes] = await Promise.all([
@@ -161,10 +158,10 @@
                     div.className = "station-item";
                     if (idx === 0) div.classList.add("active");
                     div.innerHTML = `
-                                <div class="station-name">${station.name}</div>
-                                <span class="station-count">${agents.length}</span>
-                            `;
-                    div.onclick = (e) => {
+                            <div class="station-name">${station.name}</div>
+                            <span class="station-count">${agents.length}</span>
+                        `;
+                    div.onclick = () => {
                         document.querySelectorAll(".station-item").forEach(i => i.classList.remove("active"));
                         div.classList.add("active");
                         selectStation(station);
@@ -178,10 +175,6 @@
             }
         }
 
-        /**
-         * REQ-15: Show station details, layout and map when selected.
-         * @param {Object} station - The selected station.
-         */
         function selectStation(station) {
             renderStationLayout(station);
 
@@ -191,39 +184,36 @@
 
             const agents = allAgents.filter(a => a.policeStationId === station.id);
 
-            // Station info panel
             document.getElementById("stationInfoContent").innerHTML = `
-                        <div class="info-row">
-                            <span class="info-label">Name</span>
-                            <span class="info-value">${station.name}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Address</span>
-                            <span class="info-value">${station.address || "N/A"}</span>
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">Personnel</span>
-                            <span class="info-value">${agents.length}</span>
-                        </div>
-                    `;
+                    <div class="info-row">
+                        <span class="info-label">Name</span>
+                        <span class="info-value">${station.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Address</span>
+                        <span class="info-value">${station.address || "N/A"}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Personnel</span>
+                        <span class="info-value">${agents.length}</span>
+                    </div>
+                `;
 
-            // REQ-22: Chain of command
             const commander = agents.find(a => a.role === "StationHead") ||
                 agents.find(a => a.role === "ChiefInspector");
             document.getElementById("hierarchyContent").innerHTML = `
-                        ${commander ? `
-                            <div class="hierarchy-item">
-                                <div class="hierarchy-level">Commander</div>
-                                <div class="hierarchy-name">${commander.firstName} ${commander.lastName}</div>
-                            </div>
-                        ` : ""}
+                    ${commander ? `
                         <div class="hierarchy-item">
-                            <div class="hierarchy-level">Personnel</div>
-                            <div class="hierarchy-name">${agents.length} Total</div>
+                            <div class="hierarchy-level">Commander</div>
+                            <div class="hierarchy-name">${commander.firstName} ${commander.lastName}</div>
                         </div>
-                    `;
+                    ` : ""}
+                    <div class="hierarchy-item">
+                        <div class="hierarchy-level">Personnel</div>
+                        <div class="hierarchy-name">${agents.length} Total</div>
+                    </div>
+                `;
 
-            // REQ-9: Mini map for selected station
             setTimeout(() => {
                 if (map) map.remove();
                 map = L.map("mapContainer").setView([station.latitude, station.longitude], 15);
@@ -233,8 +223,7 @@
         }
 
         /**
-         * REQ-17, REQ-19: Render station building layout with rooms and agents.
-         * @param {Object} station - The selected station.
+         * REQ-17, REQ-19: Render station building layout using roomAssignment field.
          */
         function renderStationLayout(station) {
             const agents = allAgents.filter(a => a.policeStationId === station.id);
@@ -244,13 +233,13 @@
                     name: "Investigation Wing",
                     type: "investigation",
                     icon: "🔍",
-                    agents: agents.filter(a => a.role === "ChiefInspector" || a.role === "Agent")
+                    agents: agents.filter(a => a.roomAssignment === "Investigation Wing")
                 },
                 {
                     name: "Patrol Office",
                     type: "patrol",
                     icon: "👮",
-                    agents: agents.filter(a => a.role === "StationHead")
+                    agents: agents.filter(a => a.roomAssignment === "Patrol Office")
                 },
                 {
                     name: "Records",
@@ -262,45 +251,42 @@
                     name: "Command",
                     type: "command",
                     icon: "👑",
-                    agents: agents.filter(a => a.role === "Admin")
+                    agents: agents.filter(a => a.roomAssignment === "Command")
                 }
             ];
 
             const html = `
-                        <div class="building">
-                            ${rooms.map(room => `
-                                <div class="room ${room.type}">
-                                    <div class="room-title">${room.icon} ${room.name}</div>
-                                    <div class="room-agents">
-                                        ${room.agents.length > 0
+                    <div class="building">
+                        ${rooms.map(room => `
+                            <div class="room ${room.type}">
+                                <div class="room-title">${room.icon} ${room.name}</div>
+                                <div class="room-agents">
+                                    ${room.agents.length > 0
                     ? room.agents.map(a => `
-                                                <div class="agent-card">
-                                                    <div class="agent-avatar">
-                                                        ${a.profileImageUrl
-                            ? `<img src="${a.profileImageUrl}" alt="${a.firstName}" />`
-                            : `${a.firstName[0]}${a.lastName[0] || ""}`
-                        }
-                                                    </div>
-                                                    <div class="agent-info">
-                                                        <div class="agent-name">${a.firstName} ${a.lastName}</div>
-                                                        <div class="agent-role">${a.role}</div>
-                                                    </div>
+                                            <div class="agent-card">
+                                         <div class="agent-avatar">
+                                     ${a.profileImageUrl
+                            ? `<img src="${a.profileImageUrl}" alt="${a.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                            : `${a.firstName[0]}${a.lastName?.[0] || ""}`
+    }
+                                                 </div>
+                                                <div class="agent-info">
+                                                    <div class="agent-name">${a.firstName} ${a.lastName}</div>
+                                                    <div class="agent-role">${a.role}</div>
                                                 </div>
-                                            `).join("")
+                                            </div>
+                                        `).join("")
                     : `<div style="color:var(--text-muted);font-size:11px;">No personnel assigned</div>`
                 }
-                                    </div>
                                 </div>
-                            `).join("")}
-                        </div>
-                    `;
+                            </div>
+                        `).join("")}
+                    </div>
+                `;
 
             document.getElementById("layoutContainer").innerHTML = html;
         }
 
-        /**
-         * REQ-1: Open modal to add new station.
-         */
         function openAddModal() {
             editingId = null;
             document.getElementById("modalTitle").textContent = "➕ Add New Station";
@@ -316,16 +302,12 @@
             document.getElementById("stationModal").classList.remove("open");
         }
 
-        /**
-         * REQ-1, REQ-2, REQ-7, REQ-8: Save station to API.
-         */
         async function saveStation() {
             const name = document.getElementById("stationName").value.trim();
             const address = document.getElementById("stationAddress").value.trim();
             const lat = parseFloat(document.getElementById("stationLatitude").value);
             const lng = parseFloat(document.getElementById("stationLongitude").value);
 
-            // REQ-7: Validate coordinates
             if (!name || isNaN(lat) || isNaN(lng)) {
                 document.getElementById("modalError").textContent = "Name, latitude and longitude are required.";
                 document.getElementById("modalError").style.display = "block";
