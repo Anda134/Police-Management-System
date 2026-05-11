@@ -45,7 +45,7 @@ namespace PoliceManagementSystem.Data
                 .HasOne(cf => cf.Agent)
                 .WithMany()
                 .HasForeignKey(cf => cf.AgentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Conference>()
                 .HasOne(c => c.Organizer)
