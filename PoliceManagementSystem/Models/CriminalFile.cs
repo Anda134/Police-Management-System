@@ -27,9 +27,7 @@
         public PoliceStation PoliceStation { get; set; } = null!;
 
         /// <summary>ID of the agent assigned to this file (REQ-49).</summary>
-        public int AgentId { get; set; }
-
-        /// <summary>Navigation property for the assigned agent.</summary>
+        public int? AgentId { get; set; }
         public Agent Agent { get; set; } = null!;
         /// <summary>Detailed investigation notes, suspects, witnesses and interrogations.</summary>
         public string? Details { get; set; }

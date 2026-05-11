@@ -38,8 +38,10 @@ namespace PoliceManagementSystem.Services
                     UpdatedAt = cf.UpdatedAt,
                     PoliceStationId = cf.PoliceStationId,
                     PoliceStationName = cf.PoliceStation.Name,
-                    AgentId = cf.AgentId,
-                    AgentName = cf.Agent.FirstName + " " + cf.Agent.LastName
+                    AgentId = cf.AgentId ?? 0,
+                    AgentName = cf.Agent != null
+                        ? cf.Agent.FirstName + " " + cf.Agent.LastName
+                        : "Unassigned"
                 })
                 .ToListAsync();
         }
@@ -66,8 +68,10 @@ namespace PoliceManagementSystem.Services
                 UpdatedAt = file.UpdatedAt,
                 PoliceStationId = file.PoliceStationId,
                 PoliceStationName = file.PoliceStation.Name,
-                AgentId = file.AgentId,
-                AgentName = file.Agent.FirstName + " " + file.Agent.LastName
+                AgentId = file.AgentId ?? 0,
+                AgentName = file.Agent != null
+                    ? file.Agent.FirstName + " " + file.Agent.LastName
+                    : "Unassigned"
             };
         }
 
@@ -103,8 +107,10 @@ namespace PoliceManagementSystem.Services
                     UpdatedAt = cf.UpdatedAt,
                     PoliceStationId = cf.PoliceStationId,
                     PoliceStationName = cf.PoliceStation.Name,
-                    AgentId = cf.AgentId,
-                    AgentName = cf.Agent.FirstName + " " + cf.Agent.LastName
+                    AgentId = cf.AgentId ?? 0,
+                    AgentName = cf.Agent != null
+                        ? cf.Agent.FirstName + " " + cf.Agent.LastName
+                        : "Unassigned"
                 })
                 .ToListAsync();
         }
@@ -121,10 +127,13 @@ namespace PoliceManagementSystem.Services
             if (!stationExists)
                 throw new ArgumentException("Police station not found.");
 
-            var agentExists = await _context.Agents
-                .AnyAsync(a => a.Id == request.AgentId);
-            if (!agentExists)
-                throw new ArgumentException("Agent not found.");
+            if (request.AgentId.HasValue && request.AgentId.Value > 0)
+            {
+                var agentExists = await _context.Agents
+                    .AnyAsync(a => a.Id == request.AgentId.Value);
+                if (!agentExists)
+                    throw new ArgumentException("Agent not found.");
+            }
 
             var file = new CriminalFile
             {
@@ -133,7 +142,7 @@ namespace PoliceManagementSystem.Services
                 Status = request.Status,
                 Details = request.Details,
                 PoliceStationId = request.PoliceStationId,
-                AgentId = request.AgentId,
+                AgentId = request.AgentId > 0 ? request.AgentId : null,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -168,7 +177,7 @@ namespace PoliceManagementSystem.Services
             file.Title = request.Title;
             file.Category = request.Category;
             file.Status = request.Status;
-            file.AgentId = request.AgentId;
+            file.AgentId = request.AgentId > 0 ? request.AgentId : null;
             file.Details = request.Details;
             file.UpdatedAt = DateTime.UtcNow;
 
@@ -275,7 +284,7 @@ namespace PoliceManagementSystem.Services
                 Title = file.Title,
                 Category = file.Category,
                 Status = file.Status,
-                AgentId = file.AgentId,
+                AgentId = file.AgentId ?? 0,
                 PoliceStationId = file.PoliceStationId,
                 ChangedByUsername = changedByUsername,
                 ChangeType = changeType,
