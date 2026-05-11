@@ -3,140 +3,589 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- REQ-33, REQ-34, REQ-35, REQ-36, REQ-40, REQ-41, REQ-42, REQ-43, REQ-44, REQ-45, REQ-47, REQ-48 -->
-    <title>Conferences - Police Inspectorate</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    <title>Communications - Police Inspectorate</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <div class="app-shell">
 
-    <!-- REQ-73, REQ-75: Navbar with user info and logout -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="index.html">🚔 Police Inspectorate</a>
-            <div class="navbar-nav me-auto">
-                <a class="nav-link" href="stations.html">Stations</a>
-                <a class="nav-link" href="agents.html">Agents</a>
-                <a class="nav-link" href="files.html">Criminal Files</a>
-                <a class="nav-link active" href="conferences.html">Conferences</a>
-                <a class="nav-link" href="transfers.html">Transfers</a>
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">🛡️</div>
+                Police Inspectorate
+            </a>
+            <div class="sidebar-user">
+                <div class="sidebar-user-name" id="navUsername">-</div>
+                <div class="sidebar-user-role" id="navRole">-</div>
             </div>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-light me-3">
-                    👤 <span id="navUsername"></span>
-                    <span id="navRole" class="badge bg-secondary ms-1"></span>
-                </span>
-                <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="stations.html" class="sidebar-link">
+                    <span class="nav-icon">🏢</span> Stations
+                </a>
+                <a href="agents.html" class="sidebar-link">
+                    <span class="nav-icon">👮</span> Personnel
+                </a>
+                <a href="files.html" class="sidebar-link">
+                    <span class="nav-icon">📁</span> Case Files
+                </a>
+                <a href="conferences.html" class="sidebar-link active">
+                    <span class="nav-icon">📞</span> Communications
+                </a>
+                <a href="transfers.html" class="sidebar-link">
+                    <span class="nav-icon">🔄</span> Transfers
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">⬅ Logout</button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>📞 Conference Planning Module</h1>
+                <p>Schedule and manage police conferences</p>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 400px;gap:20px;">
+
+                <!-- Stanga: Calendar -->
+                <div class="card">
+                    <div class="card-header-row">
+                        <span class="card-title">📅 Scheduled Conferences</span>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <button class="btn btn-secondary btn-sm" onclick="prevMonth()">◀</button>
+                            <span id="calendarTitle" style="font-weight:700;font-size:14px;min-width:140px;text-align:center;"></span>
+                            <button class="btn btn-secondary btn-sm" onclick="nextMonth()">▶</button>
+                        </div>
+                    </div>
+
+                    <div id="calendarGrid" style="margin-top:12px;"></div>
+
+                    <div style="margin-top:16px;display:none;" id="conferenceListSection">
+                        <div class="card-header-row" style="margin-bottom:8px;">
+                            <span class="card-title" id="conferenceListTitle"></span>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Reason</th>
+                                    <th>Callsign</th>
+                                    <th>Organizer</th>
+                                    <th>Scheduled</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="conferencesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dreapta: Conference Request Form -->
+                <div class="card">
+                    <div class="card-header-row">
+                        <span class="card-title">📋 Conference Request</span>
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Requester *</label>
+                            <select class="form-select" id="conferenceOrganizer">
+                                <option value="">Select organizer...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Reason for Call *</label>
+                            <input type="text" class="form-control" id="conferenceReason"
+                                   placeholder="e.g. Review of city-wide patrol routes">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Personal Callsign *</label>
+                            <input type="text" class="form-control" id="conferenceCallsign"
+                                   placeholder="e.g. CIS-ALPHA-7">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Date & Time *</label>
+                            <input type="datetime-local" class="form-control" id="conferenceTime">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Participants</label>
+                            <select class="form-select" id="conferenceParticipants" multiple style="height:120px;"></select>
+                            <small style="color:var(--text-muted);font-size:11px;">Hold Ctrl to select multiple</small>
+                        </div>
+
+                        <div id="priorityBadge" style="display:none;margin-bottom:12px;">
+                            <span class="badge badge-danger">⭐ HIGH PRIORITY — Chief Inspector</span>
+                        </div>
+
+                        <div id="conflictWarning" style="display:none;margin-bottom:12px;">
+                            <div class="alert alert-warning">
+                                ⚠️ REQ-46: Scheduling conflict detected! A higher priority conference exists at this time.
+                            </div>
+                        </div>
+
+                        <div id="formError" class="alert alert-danger" style="display:none;"></div>
+
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-primary" onclick="createConference()">📅 Schedule</button>
+                            <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container">
-        <h1 class="page-title">Conferences</h1>
-
-        <!-- Alert box for success/error messages -->
-        <div id="alertBox"></div>
-
-        <!-- REQ-41: Submit conference request form -->
-        <div class="card p-4 mb-4 form-section">
-            <h4>Schedule Conference</h4>
-            <div class="row g-3">
-
-                <!-- REQ-42: Reason for conference -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Reason *</label>
-                    <input type="text" class="form-control" id="conferenceReason"
-                           placeholder="Reason for conference">
-                </div>
-
-                <!-- REQ-43: Personal callsign -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">Callsign *</label>
-                    <input type="text" class="form-control" id="conferenceCallsign"
-                           placeholder="e.g. ALPHA-1">
-                </div>
-
-                <!-- REQ-44: Chief Inspector specifies date and time -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Scheduled Time *</label>
-                    <input type="datetime-local" class="form-control" id="conferenceTime">
-                </div>
-
-                <!-- REQ-45: Organizer determines priority -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Organizer *</label>
-                    <select class="form-select" id="conferenceOrganizer">
-                        <option value="">Select organizer...</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="mt-3">
-                <button class="btn btn-success" onclick="createConference()">
-                    📅 Schedule Conference
-                </button>
-                <button class="btn btn-secondary ms-2" onclick="clearForm()">Clear</button>
-            </div>
-
-            <!-- REQ-45, REQ-46: Priority info -->
-            <div class="mt-2">
-                <small class="text-muted">
-                    ⭐ REQ-45: Conferences organized by Chief Inspector have highest priority.
-                    REQ-46: Scheduling conflicts resolved by priority rules.
-                </small>
-            </div>
-        </div>
-
-        <!-- REQ-40, REQ-47: Conferences list -->
-        <div class="card p-4">
-            <h4>Conferences List</h4>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <!-- REQ-42: Reason -->
-                            <th>Reason</th>
-                            <th>Organizer</th>
-                            <!-- REQ-44: Scheduled time -->
-                            <th>Scheduled Time</th>
-                            <!-- REQ-48: Status upcoming/past -->
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="conferencesTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 
-    <!-- REQ-36: Participants modal -->
-    <div class="modal fade" id="participantsModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="participantsModalTitle">Participants</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- REQ-36: List of connected participants -->
-                    <ul class="list-group" id="participantsList"></ul>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Close
+    <!-- Participants Modal -->
+    <div class="modal-overlay" id="participantsModal">
+        <div class="modal-card" style="width:500px;">
+            <div class="modal-title" id="participantsModalTitle">👥 Participants</div>
+
+            <ul id="participantsList" style="list-style:none;padding:0;margin:0 0 16px 0;"></ul>
+
+            <!-- Edit section - only for Admin/ChiefInspector REQ-35 -->
+            <div id="editParticipantsSection" style="display:none;">
+                <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;">
+                    <label class="form-label">Add Participants</label>
+                    <select class="form-select" id="addParticipantSelect" multiple style="height:120px;"></select>
+                    <small style="color:var(--text-muted);font-size:11px;">Hold Ctrl to select multiple</small>
+                    <button class="btn btn-primary btn-sm" style="margin-top:8px;width:100%;"
+                            onclick="addParticipants()">
+                        ➕ Add Selected
                     </button>
                 </div>
             </div>
+
+            <div id="participantsError" class="alert alert-danger" style="display:none;margin-top:8px;"></div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeParticipants()">Close</button>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="javascript/config.js"></script>
-    <script src="javascript/conferences.js"></script>
+    <script>
+        requireAuth();
+
+        document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
+        document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
+
+        let allConferences = [];
+        let allAgents = [];
+        let currentDate = new Date();
+        let selectedDay = null;
+        let currentConferenceId = null;
+
+        async function loadData() {
+            try {
+                const [confRes, agentsRes] = await Promise.all([
+                    apiFetch(`${API_BASE_URL}/Conference`),
+                    apiFetch(`${API_BASE_URL}/Agent`)
+                ]);
+
+                if (confRes) allConferences = await confRes.json();
+                if (agentsRes) allAgents = await agentsRes.json();
+
+                populateAgentDropdowns();
+                renderCalendar();
+                document.getElementById("conferenceListSection").style.display = "none";
+            } catch (err) {
+                showAlert("Failed to load data.", "danger");
+            }
+        }
+
+        function populateAgentDropdowns() {
+            const organizer = document.getElementById("conferenceOrganizer");
+            organizer.innerHTML = `<option value="">Select organizer...</option>`;
+            allAgents.forEach(a => {
+                organizer.innerHTML += `<option value="${a.id}">${a.firstName} ${a.lastName} (${a.role})</option>`;
+            });
+
+            const participants = document.getElementById("conferenceParticipants");
+            participants.innerHTML = "";
+            allAgents.forEach(a => {
+                participants.innerHTML += `<option value="${a.id}">${a.firstName} ${a.lastName} (${a.role})</option>`;
+            });
+        }
+
+        /**
+         * REQ-45: Show priority badge when ChiefInspector is selected.
+         * REQ-46: Check for scheduling conflicts.
+         */
+        document.getElementById("conferenceOrganizer").addEventListener("change", function () {
+            const selected = allAgents.find(a => a.id === parseInt(this.value));
+            document.getElementById("priorityBadge").style.display =
+                selected?.role === "ChiefInspector" ? "block" : "none";
+            checkConflicts();
+        });
+
+        document.getElementById("conferenceTime").addEventListener("change", checkConflicts);
+
+        /**
+         * REQ-46: Detect scheduling conflicts based on priority.
+         */
+        function checkConflicts() {
+            const timeVal = document.getElementById("conferenceTime").value;
+            const organizerId = parseInt(document.getElementById("conferenceOrganizer").value);
+            if (!timeVal || isNaN(organizerId)) return;
+
+            const selectedTime = new Date(timeVal);
+            const organizer = allAgents.find(a => a.id === organizerId);
+            const myPriority = organizer?.role === "ChiefInspector" ? 1 : 2;
+
+            const conflict = allConferences.find(c => {
+                const cTime = new Date(c.scheduledAt);
+                const timeDiff = Math.abs(cTime - selectedTime) / 60000;
+                return timeDiff < 60 && c.priority < myPriority;
+            });
+
+            document.getElementById("conflictWarning").style.display = conflict ? "block" : "none";
+        }
+
+        /**
+         * REQ-48: Render calendar with conference markers.
+         */
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            document.getElementById("calendarTitle").textContent =
+                currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const confDays = {};
+            allConferences.forEach(c => {
+                const d = new Date(c.scheduledAt);
+                if (d.getFullYear() === year && d.getMonth() === month) {
+                    const day = d.getDate();
+                    if (!confDays[day]) confDays[day] = [];
+                    confDays[day].push(c);
+                }
+            });
+
+            let html = `
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                    <thead>
+                        <tr>
+                            ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d =>
+                `<th style="text-align:center;padding:6px;color:var(--text-secondary);font-weight:600;">${d}</th>`
+            ).join("")}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let day = 1;
+            for (let row = 0; row < 6; row++) {
+                if (day > daysInMonth) break;
+                html += `<tr>`;
+                for (let col = 0; col < 7; col++) {
+                    if (row === 0 && col < firstDay || day > daysInMonth) {
+                        html += `<td style="padding:4px;"></td>`;
+                    } else {
+                        const hasConf = confDays[day];
+                        const isToday = day === new Date().getDate() &&
+                            month === new Date().getMonth() &&
+                            year === new Date().getFullYear();
+                        const isSelected = day === selectedDay;
+
+                        html += `
+                            <td onclick="selectDay(${day})" style="
+                                text-align:center;
+                                padding:6px 4px;
+                                cursor:pointer;
+                                border-radius:8px;
+                                background:${isSelected ? 'var(--accent-blue)' : isToday ? 'rgba(21,101,192,0.2)' : 'transparent'};
+                                color:${isSelected ? 'white' : 'var(--text-primary)'};
+                            ">
+                                ${day}
+                                ${hasConf ? `<div style="width:6px;height:6px;background:#00bcd4;border-radius:50%;margin:2px auto 0;"></div>` : ""}
+                            </td>
+                        `;
+                        day++;
+                    }
+                }
+                html += `</tr>`;
+            }
+
+            html += `</tbody></table>`;
+            document.getElementById("calendarGrid").innerHTML = html;
+        }
+
+        function selectDay(day) {
+            selectedDay = day;
+            renderCalendar();
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            const dayConferences = allConferences.filter(c => {
+                const d = new Date(c.scheduledAt);
+                return d.getDate() === day && d.getMonth() === month && d.getFullYear() === year;
+            });
+
+            const section = document.getElementById("conferenceListSection");
+            if (dayConferences.length > 0) {
+                document.getElementById("conferenceListTitle").textContent =
+                    `Conferences on ${day}/${month + 1}/${year}`;
+                renderConferences(dayConferences);
+                section.style.display = "block";
+            } else {
+                section.style.display = "none";
+            }
+        }
+
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            selectedDay = null;
+            renderCalendar();
+            document.getElementById("conferenceListSection").style.display = "none";
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            selectedDay = null;
+            renderCalendar();
+            document.getElementById("conferenceListSection").style.display = "none";
+        }
+
+        function renderConferences(conferences) {
+            const tbody = document.getElementById("conferencesTableBody");
+            tbody.innerHTML = "";
+
+            if (conferences.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No conferences found.</td></tr>`;
+                return;
+            }
+
+            conferences.forEach(c => {
+                const isUpcoming = new Date(c.scheduledAt) > new Date();
+                const priorityBadge = c.priority === 1
+                    ? `<span class="badge badge-danger">⭐ HIGH</span>`
+                    : `<span class="badge badge-secondary">NORMAL</span>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:600;">${c.reason}</td>
+                        <td><span class="badge badge-info">${c.callsign}</span></td>
+                        <td>${c.organizerName || "-"}</td>
+                        <td>${new Date(c.scheduledAt).toLocaleString()}</td>
+                        <td>${priorityBadge}</td>
+                        <td><span class="badge ${isUpcoming ? 'badge-success' : 'badge-secondary'}">${isUpcoming ? 'Upcoming' : 'Past'}</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="viewParticipants(${c.id})">👥</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteConference(${c.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        /**
+         * REQ-41 to REQ-46: Create conference with priority handling.
+         */
+        async function createConference() {
+            const reason = document.getElementById("conferenceReason").value.trim();
+            const callsign = document.getElementById("conferenceCallsign").value.trim();
+            const scheduledAt = document.getElementById("conferenceTime").value;
+            const organizerId = parseInt(document.getElementById("conferenceOrganizer").value);
+
+            const participantIds = Array.from(document.getElementById("conferenceParticipants").options)
+                .filter(o => o.selected)
+                .map(o => parseInt(o.value));
+
+            if (!reason || !callsign || !scheduledAt || isNaN(organizerId)) {
+                document.getElementById("formError").textContent = "Reason, callsign, time and organizer are required.";
+                document.getElementById("formError").style.display = "block";
+                return;
+            }
+
+            const organizer = allAgents.find(a => a.id === organizerId);
+            const priority = organizer?.role === "ChiefInspector" ? 1 : 2;
+
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/Conference`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        reason, callsign,
+                        scheduledAt: new Date(scheduledAt).toISOString(),
+                        organizerId, priority, participantIds
+                    })
+                });
+
+                if (res && res.ok) {
+                    clearForm();
+                    await loadData();
+                    showAlert("Conference scheduled successfully.", "success");
+                } else {
+                    const err = await res.text();
+                    document.getElementById("formError").textContent = err || "Failed to create conference.";
+                    document.getElementById("formError").style.display = "block";
+                }
+            } catch (err) {
+                document.getElementById("formError").textContent = "Connection error.";
+                document.getElementById("formError").style.display = "block";
+            }
+        }
+
+        /**
+         * REQ-36, REQ-35: View and edit participants.
+         */
+        async function viewParticipants(id) {
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/Conference/${id}`);
+                if (!res) return;
+                const conf = await res.json();
+
+                currentConferenceId = id;
+
+                const list = document.getElementById("participantsList");
+                list.innerHTML = "";
+
+                if (!conf.participantNames || conf.participantNames.length === 0) {
+                    list.innerHTML = `<li style="color:var(--text-muted);padding:8px;">No participants added.</li>`;
+                } else {
+                    conf.participantNames.forEach(name => {
+                        list.innerHTML += `
+                            <li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
+                                👮 ${name}
+                            </li>
+                        `;
+                    });
+                }
+
+                // REQ-35: Only Admin/ChiefInspector/Organizer can add participants
+                
+                const editSection = document.getElementById("editParticipantsSection");
+                const organizer = allAgents.find(a => a.id === conf.organizerId);
+                const organizerFullName = organizer ? `${organizer.firstName} ${organizer.lastName}` : "";
+                const currentUsername = localStorage.getItem("username");
+                const isOrganizer = organizerFullName.toLowerCase().includes(currentUsername.toLowerCase()) ||
+                    currentUsername.toLowerCase().includes(organizerFullName.toLowerCase());
+
+                if (hasRole(["Admin", "ChiefInspector"]) || isOrganizer) {
+                    editSection.style.display = "block";
+                    const addSelect = document.getElementById("addParticipantSelect");
+                    addSelect.innerHTML = "";
+                    allAgents.forEach(a => {
+                        const alreadyIn = conf.participantNames?.includes(`${a.firstName} ${a.lastName}`);
+                        if (!alreadyIn) {
+                            addSelect.innerHTML += `<option value="${a.id}">${a.firstName} ${a.lastName} (${a.role})</option>`;
+                        }
+                    });
+                } else {
+                    editSection.style.display = "none";
+                }
+
+                document.getElementById("participantsError").style.display = "none";
+                document.getElementById("participantsModalTitle").textContent = `👥 ${conf.reason}`;
+                document.getElementById("participantsModal").classList.add("open");
+            } catch (err) {
+                showAlert("Failed to load participants.", "danger");
+            }
+        }
+
+        /**
+         * REQ-35: Add participants to conference.
+         */
+        async function addParticipants() {
+            const selectedIds = Array.from(document.getElementById("addParticipantSelect").options)
+                .filter(o => o.selected)
+                .map(o => parseInt(o.value));
+
+            if (selectedIds.length === 0) {
+                document.getElementById("participantsError").textContent = "Please select at least one participant.";
+                document.getElementById("participantsError").style.display = "block";
+                return;
+            }
+
+            try {
+                const res = await apiFetch(
+                    `${API_BASE_URL}/Conference/${currentConferenceId}/participants`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(selectedIds)
+                    }
+                );
+
+                if (res && res.ok) {
+                    closeParticipants();
+                    await loadData();
+                    showAlert("Participants added successfully.", "success");
+                    // REQ-47: Notify in UI
+                    showAlert(`✅ REQ-47: ${selectedIds.length} participant(s) notified of the conference.`, "success");
+                } else {
+                    document.getElementById("participantsError").textContent = "Failed to add participants.";
+                    document.getElementById("participantsError").style.display = "block";
+                }
+            } catch (err) {
+                document.getElementById("participantsError").textContent = "Connection error.";
+                document.getElementById("participantsError").style.display = "block";
+            }
+        }
+
+        function closeParticipants() {
+            document.getElementById("participantsModal").classList.remove("open");
+            currentConferenceId = null;
+        }
+
+        async function deleteConference(id) {
+            if (!confirm("Are you sure you want to delete this conference?")) return;
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/Conference/${id}`, { method: "DELETE" });
+                if (res && res.ok) {
+                    await loadData();
+                    showAlert("Conference deleted.", "success");
+                } else {
+                    showAlert("Failed to delete.", "danger");
+                }
+            } catch (err) {
+                showAlert("Connection error.", "danger");
+            }
+        }
+
+        function clearForm() {
+            document.getElementById("conferenceReason").value = "";
+            document.getElementById("conferenceCallsign").value = "";
+            document.getElementById("conferenceTime").value = "";
+            document.getElementById("conferenceOrganizer").value = "";
+            document.getElementById("priorityBadge").style.display = "none";
+            document.getElementById("conflictWarning").style.display = "none";
+            document.getElementById("formError").style.display = "none";
+            Array.from(document.getElementById("conferenceParticipants").options)
+                .forEach(o => o.selected = false);
+        }
+
+        function showAlert(msg, type) {
+            const box = document.getElementById("alertBox");
+            box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = "", 5000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("participantsModal").addEventListener("click", e => {
+            if (e.target.id === "participantsModal") closeParticipants();
+        });
+
+        window.onload = loadData;
+    </script>
 
 </body>
 </html>

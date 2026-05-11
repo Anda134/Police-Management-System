@@ -33,6 +33,7 @@ namespace PoliceManagementSystem.Services
                     Title = cf.Title,
                     Category = cf.Category,
                     Status = cf.Status,
+                    Details = cf.Details,
                     CreatedAt = cf.CreatedAt,
                     UpdatedAt = cf.UpdatedAt,
                     PoliceStationId = cf.PoliceStationId,
@@ -60,6 +61,7 @@ namespace PoliceManagementSystem.Services
                 Title = file.Title,
                 Category = file.Category,
                 Status = file.Status,
+                Details = file.Details,
                 CreatedAt = file.CreatedAt,
                 UpdatedAt = file.UpdatedAt,
                 PoliceStationId = file.PoliceStationId,
@@ -96,6 +98,7 @@ namespace PoliceManagementSystem.Services
                     Title = cf.Title,
                     Category = cf.Category,
                     Status = cf.Status,
+                    Details = cf.Details,
                     CreatedAt = cf.CreatedAt,
                     UpdatedAt = cf.UpdatedAt,
                     PoliceStationId = cf.PoliceStationId,
@@ -128,6 +131,7 @@ namespace PoliceManagementSystem.Services
                 Title = request.Title,
                 Category = request.Category,
                 Status = request.Status,
+                Details = request.Details,
                 PoliceStationId = request.PoliceStationId,
                 AgentId = request.AgentId,
                 CreatedAt = DateTime.UtcNow,
@@ -165,6 +169,7 @@ namespace PoliceManagementSystem.Services
             file.Category = request.Category;
             file.Status = request.Status;
             file.AgentId = request.AgentId;
+            file.Details = request.Details;
             file.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

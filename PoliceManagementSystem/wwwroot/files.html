@@ -3,178 +3,642 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- REQ-49, REQ-50, REQ-51, REQ-52, REQ-53, REQ-54, REQ-55, REQ-56, REQ-57, REQ-58, REQ-59 -->
     <title>Criminal Files - Police Inspectorate</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+    <div class="app-shell">
 
-    <!-- REQ-73, REQ-75: Navbar with user info and logout -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="index.html">🚔 Police Inspectorate</a>
-            <div class="navbar-nav me-auto">
-                <a class="nav-link" href="stations.html">Stations</a>
-                <a class="nav-link" href="agents.html">Agents</a>
-                <a class="nav-link active" href="files.html">Criminal Files</a>
-                <a class="nav-link" href="conferences.html">Conferences</a>
-                <a class="nav-link" href="transfers.html">Transfers</a>
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">🛡️</div>
+                Police Inspectorate
+            </a>
+            <div class="sidebar-user">
+                <div class="sidebar-user-name" id="navUsername">-</div>
+                <div class="sidebar-user-role" id="navRole">-</div>
             </div>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-light me-3">
-                    👤 <span id="navUsername"></span>
-                    <span id="navRole" class="badge bg-secondary ms-1"></span>
-                </span>
-                <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="stations.html" class="sidebar-link">
+                    <span class="nav-icon">🏢</span> Stations
+                </a>
+                <a href="agents.html" class="sidebar-link">
+                    <span class="nav-icon">👮</span> Personnel
+                </a>
+                <a href="files.html" class="sidebar-link active">
+                    <span class="nav-icon">📁</span> Case Files
+                </a>
+                <a href="conferences.html" class="sidebar-link">
+                    <span class="nav-icon">📞</span> Communications
+                </a>
+                <a href="transfers.html" class="sidebar-link">
+                    <span class="nav-icon">🔄</span> Transfers
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">⬅ Logout</button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>📁 Criminal Files</h1>
+                <p>Manage and track criminal activity files</p>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 420px;gap:20px;">
+
+                <!-- Stanga: Lista fisiere -->
+                <div>
+                    <div class="card mb-3">
+                        <div style="display:grid;grid-template-columns:1fr 180px 100px 100px;gap:12px;align-items:end;">
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Search by title or agent</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Type to search...">
+                            </div>
+                            <div class="form-group" style="margin:0;">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">All</option>
+                                    <option value="Theft">Theft</option>
+                                    <option value="Fraud">Fraud</option>
+                                    <option value="Violence">Violence</option>
+                                    <option value="Drugs">Drugs</option>
+                                    <option value="Cybercrime">Cybercrime</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="searchFiles()" style="height:38px;">🔍 Search</button>
+                            <button class="btn btn-secondary btn-sm" onclick="loadFiles()" style="height:38px;">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header-row">
+                            <span class="card-title">📁 Files List</span>
+                            <button class="btn btn-primary btn-sm" onclick="openNewFileForm()" id="addFileBtn" style="display:none;">
+                                ➕ New File
+                            </button>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Station</th>
+                                    <th>Agent</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dreapta: Formular detaliat -->
+                <div>
+                    <div class="card" id="fileFormPanel">
+                        <div class="card-header-row">
+                            <span class="card-title" id="formTitle">📄 File Details</span>
+                        </div>
+
+                        <div id="formPlaceholder" style="color:var(--text-muted);font-size:13px;text-align:center;padding:40px 0;">
+                            Select a file to view details or click "New File" to create one.
+                        </div>
+
+                        <div id="fileForm" style="display:none;">
+                            <div class="form-group">
+                                <label class="form-label">File Number</label>
+                                <input type="text" class="form-control" id="formFileNumber" readonly style="opacity:0.6;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Title *</label>
+                                <input type="text" class="form-control" id="formTitle2" placeholder="Case title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Category *</label>
+                                <select class="form-select" id="formCategory">
+                                    <option value="Theft">Theft</option>
+                                    <option value="Fraud">Fraud</option>
+                                    <option value="Violence">Violence</option>
+                                    <option value="Drugs">Drugs</option>
+                                    <option value="Cybercrime">Cybercrime</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="formStatus">
+                                    <option value="Open">Open</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Closed">Closed</option>
+                                    <option value="Archived">Archived</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Station *</label>
+                                <select class="form-select" id="formStation"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Assigned Agent</label>
+                                <select class="form-select" id="formAgent"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date Opened</label>
+                                <input type="text" class="form-control" id="formDate" readonly style="opacity:0.6;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Investigation Details</label>
+                                <textarea class="form-control" id="formDetails" rows="5"
+                                          placeholder="Add suspects, witnesses, interrogations, notes..."
+                                          style="resize:vertical;"></textarea>
+                            </div>
+
+                            <div id="formError" class="alert alert-danger" style="display:none;"></div>
+
+                            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                                <button class="btn btn-primary" onclick="saveFile()">💾 Save</button>
+                                <button class="btn btn-secondary" onclick="exportPDF()" id="exportBtn" style="display:none;">⬇️ PDF</button>
+                                <button class="btn btn-secondary" onclick="viewHistory()" id="historyBtn" style="display:none;">📋 History</button>
+                                <button class="btn btn-secondary" onclick="openTransferModal()" id="transferBtn" style="display:none;">🔄 Transfer</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()" id="deleteBtn" style="display:none;">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
-
-    <div class="container">
-        <h1 class="page-title">Criminal Files</h1>
-
-        <!-- Alert box for success/error messages -->
-        <div id="alertBox"></div>
-
-        <!-- REQ-49: Create new criminal file form -->
-        <div class="card p-4 mb-4 form-section">
-            <h4>Add New Criminal File</h4>
-            <div class="row g-3">
-
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Title *</label>
-                    <input type="text" class="form-control" id="fileTitle" placeholder="File title">
-                </div>
-
-                <!-- REQ-50: Files grouped by category -->
-                <div class="col-md-2">
-                    <label class="form-label fw-semibold">Category *</label>
-                    <select class="form-select" id="fileCategory">
-                        <option value="">Select category...</option>
-                        <option value="Theft">Theft</option>
-                        <option value="Fraud">Fraud</option>
-                        <option value="Violence">Violence</option>
-                        <option value="Drugs">Drugs</option>
-                        <option value="Cybercrime">Cybercrime</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Station *</label>
-                    <select class="form-select" id="fileStation">
-                        <option value="">Select station...</option>
-                    </select>
-                </div>
-
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Assigned Agent</label>
-                    <select class="form-select" id="fileAgent">
-                        <option value="">Select agent...</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="mt-3">
-                <button class="btn btn-success" onclick="createFile()">➕ Add File</button>
-                <button class="btn btn-secondary ms-2" onclick="clearForm()">Clear</button>
-            </div>
-        </div>
-
-        <!-- REQ-57, REQ-58, REQ-59: Search and filter -->
-        <div class="card p-3 mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label fw-semibold">
-                        <!-- REQ-57, REQ-58: Search by name or agent -->
-                        Search by title or agent name
-                    </label>
-                    <input type="text" class="form-control" id="searchInput" placeholder="Type to search...">
-                </div>
-
-                <!-- REQ-59: Filter by category -->
-                <div class="col-md-3">
-                    <label class="form-label fw-semibold">Filter by Category</label>
-                    <select class="form-select" id="categoryFilter">
-                        <option value="">All categories</option>
-                        <option value="Theft">Theft</option>
-                        <option value="Fraud">Fraud</option>
-                        <option value="Violence">Violence</option>
-                        <option value="Drugs">Drugs</option>
-                        <option value="Cybercrime">Cybercrime</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100" onclick="searchFiles()">🔍 Search</button>
-                </div>
-
-                <div class="col-md-2">
-                    <button class="btn btn-secondary w-100" onclick="loadFiles()">Reset</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- REQ-51, REQ-54: View files with status -->
-        <div class="card p-4">
-            <h4>Files List</h4>
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <!-- REQ-50: Category -->
-                            <th>Category</th>
-                            <!-- REQ-54: Status -->
-                            <th>Status</th>
-                            <th>Station</th>
-                            <th>Agent</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="filesTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 
-    <!-- REQ-56: Version history modal -->
-    <div class="modal fade" id="historyModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">📋 File Version History (REQ-56)</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th>Date</th>
-                                <th>Change Type</th>
-                                <th>Status</th>
-                                <th>Category</th>
-                                <th>Changed By</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+    <!-- History Modal -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-card" style="width:600px;">
+            <div class="modal-title">📋 Version History</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Change</th>
+                        <th>Status</th>
+                        <th>By</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeHistory()">Close</button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Transfer Modal REQ-60, REQ-61 -->
+    <div class="modal-overlay" id="transferModal">
+        <div class="modal-card" style="width:440px;">
+            <div class="modal-title">🔄 Transfer File to Another Station</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+                REQ-60: Select destination station for this file.
+            </p>
+            <div class="form-group">
+                <label class="form-label">Current Station</label>
+                <input type="text" class="form-control" id="transferCurrentStation" readonly style="opacity:0.6;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Destination Station *</label>
+                <select class="form-select" id="transferDestStation"></select>
+            </div>
+            <div id="transferError" class="alert alert-danger" style="display:none;"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeTransferModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="transferFile()">🔄 Transfer</button>
+            </div>
+        </div>
+    </div>
+
     <script src="javascript/config.js"></script>
-    <script src="javascript/files.js"></script>
+    <script>
+        requireAuth();
+
+        document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
+        document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
+
+        if (hasRole(["Admin", "ChiefInspector", "StationHead", "Agent"])) {
+            document.getElementById("addFileBtn").style.display = "flex";
+        }
+
+        let allFiles = [];
+        let allStations = [];
+        let allAgents = [];
+        let currentFileId = null;
+        let isNewFile = false;
+
+        async function loadFiles() {
+            try {
+                const [filesRes, stationsRes, agentsRes] = await Promise.all([
+                    apiFetch(`${API_BASE_URL}/CriminalFile`),
+                    apiFetch(`${API_BASE_URL}/PoliceStation`),
+                    apiFetch(`${API_BASE_URL}/Agent`)
+                ]);
+
+                if (filesRes) allFiles = await filesRes.json();
+                if (stationsRes) allStations = await stationsRes.json();
+                if (agentsRes) allAgents = await agentsRes.json();
+
+                populateDropdowns();
+                renderFiles(allFiles);
+            } catch (err) {
+                showAlert("Failed to load files.", "danger");
+            }
+        }
+
+        function populateDropdowns() {
+            const sel = document.getElementById("formStation");
+            sel.innerHTML = `<option value="">Select station...</option>`;
+            allStations.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.name}</option>`);
+
+            const agentSel = document.getElementById("formAgent");
+            agentSel.innerHTML = `<option value="">Select agent...</option>`;
+            allAgents.forEach(a => agentSel.innerHTML += `<option value="${a.id}">${a.firstName} ${a.lastName}</option>`);
+        }
+
+        function renderFiles(files) {
+            const tbody = document.getElementById("filesTableBody");
+            tbody.innerHTML = "";
+
+            if (files.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No files found.</td></tr>`;
+                return;
+            }
+
+            files.forEach(file => {
+                tbody.innerHTML += `
+                    <tr style="cursor:pointer;" onclick="selectFile(${file.id})">
+                        <td style="font-weight:600;">${file.title}</td>
+                        <td><span class="badge badge-info">${file.category}</span></td>
+                        <td><span class="badge ${getStatusBadge(file.status)}">${file.status}</span></td>
+                        <td>${file.policeStationName || "-"}</td>
+                        <td>${file.agentName || "-"}</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();selectFile(${file.id})">✏️</button>
+                            <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteFile(${file.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                "Open": "badge-success",
+                "Closed": "badge-secondary",
+                "Pending": "badge-warning",
+                "Archived": "badge-secondary"
+            };
+            return map[status] || "badge-secondary";
+        }
+
+        /**
+         * REQ-51: Select and view file details.
+         */
+        function selectFile(id) {
+            const file = allFiles.find(f => f.id === id);
+            if (!file) return;
+
+            currentFileId = id;
+            isNewFile = false;
+
+            document.getElementById("formPlaceholder").style.display = "none";
+            document.getElementById("fileForm").style.display = "block";
+            document.getElementById("formTitle").textContent = "📄 File Details";
+
+            document.getElementById("formFileNumber").value = `FILE-${String(file.id).padStart(4, "0")}`;
+            document.getElementById("formTitle2").value = file.title;
+            document.getElementById("formCategory").value = file.category;
+            document.getElementById("formStatus").value = file.status;
+            document.getElementById("formStation").value = file.policeStationId;
+            document.getElementById("formAgent").value = file.agentId;
+            document.getElementById("formDate").value = new Date(file.createdAt).toLocaleDateString();
+            document.getElementById("formDetails").value = file.details || "";
+
+            document.getElementById("exportBtn").style.display = "inline-flex";
+            document.getElementById("historyBtn").style.display = "inline-flex";
+            document.getElementById("deleteBtn").style.display = "inline-flex";
+            document.getElementById("formError").style.display = "none";
+
+            // Transfer button only for Admin, ChiefInspector, StationHead
+            if (hasRole(["Admin", "ChiefInspector", "StationHead"])) {
+                document.getElementById("transferBtn").style.display = "inline-flex";
+            }
+        }
+
+        /**
+         * REQ-49: Open form for new file.
+         */
+        function openNewFileForm() {
+            currentFileId = null;
+            isNewFile = true;
+
+            document.getElementById("formPlaceholder").style.display = "none";
+            document.getElementById("fileForm").style.display = "block";
+            document.getElementById("formTitle").textContent = "➕ New Criminal File";
+
+            document.getElementById("formFileNumber").value = "Auto-generated";
+            document.getElementById("formTitle2").value = "";
+            document.getElementById("formCategory").value = "Theft";
+            document.getElementById("formStatus").value = "Open";
+            document.getElementById("formStation").value = "";
+            document.getElementById("formAgent").value = "";
+            document.getElementById("formDate").value = new Date().toLocaleDateString();
+            document.getElementById("formDetails").value = "";
+
+            document.getElementById("exportBtn").style.display = "none";
+            document.getElementById("historyBtn").style.display = "none";
+            document.getElementById("deleteBtn").style.display = "none";
+            document.getElementById("transferBtn").style.display = "none";
+            document.getElementById("formError").style.display = "none";
+        }
+
+        /**
+         * REQ-49, REQ-52, REQ-53: Save file to API.
+         */
+        async function saveFile() {
+            const title = document.getElementById("formTitle2").value.trim();
+            const category = document.getElementById("formCategory").value;
+            const status = document.getElementById("formStatus").value;
+            const stationId = parseInt(document.getElementById("formStation").value);
+            const agentId = parseInt(document.getElementById("formAgent").value);
+            const details = document.getElementById("formDetails").value.trim();
+
+            if (!title || !category || isNaN(stationId)) {
+                document.getElementById("formError").textContent = "Title, category and station are required.";
+                document.getElementById("formError").style.display = "block";
+                return;
+            }
+
+            const body = JSON.stringify({ title, category, status, policeStationId: stationId, agentId, details });
+
+            try {
+                const res = isNewFile
+                    ? await apiFetch(`${API_BASE_URL}/CriminalFile`, { method: "POST", body })
+                    : await apiFetch(`${API_BASE_URL}/CriminalFile/${currentFileId}`, { method: "PUT", body });
+
+                if (res && res.ok) {
+                    await loadFiles();
+                    showAlert(isNewFile ? "File created." : "File updated.", "success");
+                    if (isNewFile) {
+                        isNewFile = false;
+                        document.getElementById("exportBtn").style.display = "inline-flex";
+                        document.getElementById("historyBtn").style.display = "inline-flex";
+                        document.getElementById("deleteBtn").style.display = "inline-flex";
+                        if (hasRole(["Admin", "ChiefInspector", "StationHead"])) {
+                            document.getElementById("transferBtn").style.display = "inline-flex";
+                        }
+                    }
+                } else {
+                    const err = await res.text();
+                    document.getElementById("formError").textContent = err || "Failed to save.";
+                    document.getElementById("formError").style.display = "block";
+                }
+            } catch (err) {
+                document.getElementById("formError").textContent = "Connection error.";
+                document.getElementById("formError").style.display = "block";
+            }
+        }
+
+        /**
+         * REQ-60, REQ-61: Open transfer modal.
+         */
+        function openTransferModal() {
+            if (!currentFileId) return;
+
+            const file = allFiles.find(f => f.id === currentFileId);
+            if (!file) return;
+
+            document.getElementById("transferCurrentStation").value = file.policeStationName;
+
+            const destSel = document.getElementById("transferDestStation");
+            destSel.innerHTML = `<option value="">Select destination station...</option>`;
+            allStations
+                .filter(s => s.id !== file.policeStationId)
+                .forEach(s => destSel.innerHTML += `<option value="${s.id}">${s.name}</option>`);
+
+            document.getElementById("transferError").style.display = "none";
+            document.getElementById("transferModal").classList.add("open");
+        }
+
+        function closeTransferModal() {
+            document.getElementById("transferModal").classList.remove("open");
+        }
+
+        /**
+         * REQ-60, REQ-61, REQ-62, REQ-63, REQ-64: Transfer file to another station.
+         */
+        async function transferFile() {
+            const newStationId = parseInt(document.getElementById("transferDestStation").value);
+
+            if (isNaN(newStationId)) {
+                document.getElementById("transferError").textContent = "Please select a destination station.";
+                document.getElementById("transferError").style.display = "block";
+                return;
+            }
+
+            try {
+                const res = await apiFetch(
+                    `${API_BASE_URL}/CriminalFile/${currentFileId}/transfer/${newStationId}`,
+                    { method: "PATCH" }
+                );
+
+                if (res && res.ok) {
+                    closeTransferModal();
+                    await loadFiles();
+                    selectFile(currentFileId);
+                    showAlert("File transferred successfully.", "success");
+                } else {
+                    document.getElementById("transferError").textContent = "Failed to transfer file.";
+                    document.getElementById("transferError").style.display = "block";
+                }
+            } catch (err) {
+                document.getElementById("transferError").textContent = "Connection error.";
+                document.getElementById("transferError").style.display = "block";
+            }
+        }
+
+        /**
+         * REQ-56: Export criminal file as PDF.
+         */
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const title = document.getElementById("formTitle2").value;
+            const category = document.getElementById("formCategory").value;
+            const status = document.getElementById("formStatus").value;
+            const fileNumber = document.getElementById("formFileNumber").value;
+            const date = document.getElementById("formDate").value;
+            const details = document.getElementById("formDetails").value;
+            const stationName = document.getElementById("formStation").options[document.getElementById("formStation").selectedIndex]?.text || "-";
+            const agentName = document.getElementById("formAgent").options[document.getElementById("formAgent").selectedIndex]?.text || "-";
+
+            doc.setFillColor(7, 27, 58);
+            doc.rect(0, 0, 210, 40, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.setFont("helvetica", "bold");
+            doc.text("POLICE INSPECTORATE", 105, 18, { align: "center" });
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text("CRIMINAL ACTIVITY FILE", 105, 30, { align: "center" });
+
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "bold");
+            doc.text(`File Number: ${fileNumber}`, 20, 55);
+            doc.text(`Date: ${date}`, 150, 55);
+
+            doc.setDrawColor(7, 27, 58);
+            doc.setLineWidth(0.5);
+            doc.line(20, 60, 190, 60);
+
+            const fields = [
+                ["Title", title],
+                ["Category", category],
+                ["Status", status],
+                ["Station", stationName],
+                ["Assigned Agent", agentName],
+            ];
+
+            let y = 72;
+            fields.forEach(([label, value]) => {
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(7, 27, 58);
+                doc.text(`${label}:`, 20, y);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(0, 0, 0);
+                doc.text(value || "-", 70, y);
+                y += 12;
+            });
+
+            if (details) {
+                y += 6;
+                doc.setDrawColor(7, 27, 58);
+                doc.line(20, y, 190, y);
+                y += 10;
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(7, 27, 58);
+                doc.text("Investigation Details:", 20, y);
+                y += 8;
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(0, 0, 0);
+                const detailLines = doc.splitTextToSize(details, 170);
+                doc.text(detailLines, 20, y);
+            }
+
+            doc.setFillColor(7, 27, 58);
+            doc.rect(0, 270, 210, 30, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(8);
+            doc.text("CONFIDENTIAL - Police Inspectorate", 105, 282, { align: "center" });
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 290, { align: "center" });
+
+            doc.save(`${fileNumber}-${title}.pdf`);
+        }
+
+        async function viewHistory() {
+            if (!currentFileId) return;
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/CriminalFile/${currentFileId}/history`);
+                if (!res) return;
+                const history = await res.json();
+                const tbody = document.getElementById("historyTableBody");
+                tbody.innerHTML = "";
+
+                if (history.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No history found.</td></tr>`;
+                } else {
+                    history.forEach(h => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${new Date(h.changedAt).toLocaleString()}</td>
+                                <td>${h.changeType}</td>
+                                <td><span class="badge ${getStatusBadge(h.status)}">${h.status}</span></td>
+                                <td>${h.changedByUsername || "-"}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById("historyModal").classList.add("open");
+            } catch (err) {
+                showAlert("Failed to load history.", "danger");
+            }
+        }
+
+        function closeHistory() {
+            document.getElementById("historyModal").classList.remove("open");
+        }
+
+        async function deleteCurrentFile() {
+            if (!currentFileId) return;
+            await deleteFile(currentFileId);
+            document.getElementById("fileForm").style.display = "none";
+            document.getElementById("formPlaceholder").style.display = "block";
+            currentFileId = null;
+        }
+
+        async function deleteFile(id) {
+            if (!confirm("Are you sure you want to delete this file?")) return;
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/CriminalFile/${id}`, { method: "DELETE" });
+                if (res && res.ok) {
+                    await loadFiles();
+                    showAlert("File deleted.", "success");
+                } else {
+                    showAlert("Failed to delete. You may not have permission.", "danger");
+                }
+            } catch (err) {
+                showAlert("Connection error.", "danger");
+            }
+        }
+
+        async function searchFiles() {
+            const term = document.getElementById("searchInput").value.trim().toLowerCase();
+            const category = document.getElementById("categoryFilter").value;
+
+            let files = [...allFiles];
+            if (term) files = files.filter(f =>
+                (f.title || "").toLowerCase().includes(term) ||
+                (f.agentName || "").toLowerCase().includes(term)
+            );
+            if (category) files = files.filter(f => f.category === category);
+            renderFiles(files);
+        }
+
+        function showAlert(msg, type) {
+            const box = document.getElementById("alertBox");
+            box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = "", 4000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        document.getElementById("historyModal").addEventListener("click", e => {
+            if (e.target.id === "historyModal") closeHistory();
+        });
+
+        document.getElementById("transferModal").addEventListener("click", e => {
+            if (e.target.id === "transferModal") closeTransferModal();
+        });
+
+        window.onload = loadFiles;
+    </script>
 
 </body>
 </html>
