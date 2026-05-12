@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoliceManagementSystem", "PoliceManagementSystem.csproj", "{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoliceManagementSystem.Tests", "..\PoliceManagementSystem.Tests\PoliceManagementSystem.Tests.csproj", "{ED2BE39E-28BF-4141-BCC1-FEE7E66E6688}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0750F6F-F5F1-43BF-A1C0-F6CADEFFE202}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED2BE39E-28BF-4141-BCC1-FEE7E66E6688}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED2BE39E-28BF-4141-BCC1-FEE7E66E6688}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED2BE39E-28BF-4141-BCC1-FEE7E66E6688}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED2BE39E-28BF-4141-BCC1-FEE7E66E6688}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
