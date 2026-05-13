@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Police Inspectorate</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">🛡️</div>
+                Police Inspectorate
+            </a>
+            <div class="sidebar-user">
+                <div class="sidebar-user-name" id="navUsername">-</div>
+                <div class="sidebar-user-role" id="navRole">-</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="stations.html" class="sidebar-link">
+                    <span class="nav-icon">🏢</span> Stations
+                </a>
+                <a href="agents.html" class="sidebar-link">
+                    <span class="nav-icon">👮</span> Personnel
+                </a>
+                <a href="files.html" class="sidebar-link">
+                    <span class="nav-icon">📁</span> Case Files
+                </a>
+                <a href="conferences.html" class="sidebar-link">
+                    <span class="nav-icon">📞</span> Communications
+                </a>
+                <a href="transfers.html" class="sidebar-link">
+                    <span class="nav-icon">🔄</span> Transfers
+                </a>
+                <a href="profile.html" class="sidebar-link active">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link" id="usersLink" style="display:none;">
+                    <span class="nav-icon">👥</span> Users
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">⬅ Logout</button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>👤 My Profile</h1>
+                <p>Your personal information and activity</p>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <!-- Profile Header -->
+            <div class="card mb-4">
+                <div style="display:flex;align-items:center;gap:24px;">
+                    <div id="profileAvatar" style="width:80px;height:80px;border-radius:50%;background:var(--accent-blue);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:white;flex-shrink:0;overflow:hidden;"></div>
+                    <div>
+                        <div style="font-size:22px;font-weight:800;" id="profileName">-</div>
+                        <div style="font-size:14px;color:var(--text-muted);" id="profileRole">-</div>
+                        <div style="font-size:13px;color:var(--text-secondary);margin-top:4px;" id="profileStation">-</div>
+                    </div>
+                    <div style="margin-left:auto;text-align:right;">
+                        <div style="font-size:12px;color:var(--text-muted);">Badge</div>
+                        <div style="font-size:18px;font-weight:700;" id="profileBadge">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" style="margin-bottom:20px;">
+                <div class="card">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-red">📁</div>
+                        <div>
+                            <div class="stat-number" id="statFiles">-</div>
+                            <div class="stat-label">Case Files</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-blue">📞</div>
+                        <div>
+                            <div class="stat-number" id="statConferences">-</div>
+                            <div class="stat-label">Conferences</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-green">🔄</div>
+                        <div>
+                            <div class="stat-number" id="statTransfers">-</div>
+                            <div class="stat-label">Transfers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tables -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div class="card">
+                    <div class="card-header-row">
+                        <span class="card-title">📁 My Case Files</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profileFiles"></tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-row">
+                        <span class="card-title">📞 My Conferences</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Reason</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profileConferences"></tbody>
+                    </table>
+                </div>
+
+                <div class="card" style="grid-column:1/-1;">
+                    <div class="card-header-row">
+                        <span class="card-title">🔄 My Transfers</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Start</th>
+                                <th>End</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profileTransfers"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="javascript/config.js"></script>
+    <script>
+        requireAuth();
+
+        const username = localStorage.getItem("username") || "-";
+        const role = localStorage.getItem("role") || "-";
+
+        document.getElementById("navUsername").textContent = username;
+        document.getElementById("navRole").textContent = role;
+
+        if (hasRole(["Admin"])) {
+            document.getElementById("usersLink").style.display = "flex";
+        }
+
+        async function loadProfile() {
+            try {
+                const [agentsRes, filesRes, confsRes, transfersRes] = await Promise.all([
+                    apiFetch(`${API_BASE_URL}/Agent`),
+                    apiFetch(`${API_BASE_URL}/CriminalFile`),
+                    apiFetch(`${API_BASE_URL}/Conference`),
+                    apiFetch(`${API_BASE_URL}/AgentTransfer`)
+                ]);
+
+                const agents = agentsRes ? await agentsRes.json() : [];
+                const files = filesRes ? await filesRes.json() : [];
+                const conferences = confsRes ? await confsRes.json() : [];
+                const transfers = transfersRes ? await transfersRes.json() : [];
+
+                const currentAgent = agents.find(a =>
+                    `${a.firstName} ${a.lastName}`.toLowerCase() === username.toLowerCase() ||
+                    a.firstName.toLowerCase() === username.split(".")[0]?.toLowerCase() ||
+                    a.lastName.toLowerCase() === username.split(".")[1]?.toLowerCase()
+                );
+
+                if (currentAgent) {
+                    const avatar = document.getElementById("profileAvatar");
+                    if (currentAgent.profileImageUrl) {
+                        avatar.innerHTML = `<img src="${currentAgent.profileImageUrl}" style="width:100%;height:100%;object-fit:cover;">`;
+                    } else {
+                        avatar.textContent = `${currentAgent.firstName[0]}${currentAgent.lastName[0]}`;
+                    }
+
+                    document.getElementById("profileName").textContent = `${currentAgent.firstName} ${currentAgent.lastName}`;
+                    document.getElementById("profileRole").textContent = currentAgent.role;
+                    document.getElementById("profileStation").textContent = `📍 ${currentAgent.policeStationName}`;
+                    document.getElementById("profileBadge").textContent = currentAgent.badge;
+
+                    const myFiles = files.filter(f => f.agentId === currentAgent.id);
+                    document.getElementById("statFiles").textContent = myFiles.length;
+                    renderFiles(myFiles);
+
+                    const myConferences = conferences.filter(c =>
+                        c.organizerId === currentAgent.id ||
+                        c.participantNames?.includes(`${currentAgent.firstName} ${currentAgent.lastName}`)
+                    );
+                    document.getElementById("statConferences").textContent = myConferences.length;
+                    renderConferences(myConferences);
+
+                    const myTransfers = transfers.filter(t => t.agentId === currentAgent.id);
+                    document.getElementById("statTransfers").textContent = myTransfers.length;
+                    renderTransfers(myTransfers);
+
+                } else {
+                    document.getElementById("profileAvatar").textContent = username[0]?.toUpperCase() || "?";
+                    document.getElementById("profileName").textContent = username;
+                    document.getElementById("profileRole").textContent = role;
+                    document.getElementById("profileStation").textContent = "System Administrator";
+                    document.getElementById("profileBadge").textContent = "N/A";
+                    document.getElementById("statFiles").textContent = files.length;
+                    document.getElementById("statConferences").textContent = conferences.length;
+                    document.getElementById("statTransfers").textContent = transfers.length;
+                    renderFiles(files.slice(0, 5));
+                    renderConferences(conferences.slice(0, 5));
+                    renderTransfers(transfers.slice(0, 5));
+                }
+
+            } catch (err) {
+                showAlert("Failed to load profile.", "danger");
+            }
+        }
+
+        function renderFiles(files) {
+            const tbody = document.getElementById("profileFiles");
+            tbody.innerHTML = "";
+            if (files.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="empty-state">No case files found.</td></tr>`;
+                return;
+            }
+            files.forEach(f => {
+                tbody.innerHTML += `
+                    <tr onclick="window.location.href='files.html'" style="cursor:pointer;">
+                        <td style="font-weight:600;">${f.title}</td>
+                        <td><span class="badge badge-info">${f.category}</span></td>
+                        <td><span class="badge ${getStatusBadge(f.status)}">${f.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderConferences(conferences) {
+            const tbody = document.getElementById("profileConferences");
+            tbody.innerHTML = "";
+            if (conferences.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="empty-state">No conferences found.</td></tr>`;
+                return;
+            }
+            conferences.forEach(c => {
+                const isUpcoming = new Date(c.scheduledAt) > new Date();
+                tbody.innerHTML += `
+                    <tr onclick="window.location.href='conferences.html'" style="cursor:pointer;">
+                        <td style="font-weight:600;">${c.reason}</td>
+                        <td style="font-size:12px;">${new Date(c.scheduledAt).toLocaleDateString()}</td>
+                        <td><span class="badge ${isUpcoming ? 'badge-success' : 'badge-secondary'}">${isUpcoming ? 'Upcoming' : 'Past'}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderTransfers(transfers) {
+            const tbody = document.getElementById("profileTransfers");
+            tbody.innerHTML = "";
+            if (transfers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No transfers found.</td></tr>`;
+                return;
+            }
+            transfers.forEach(t => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${t.fromStationName}</td>
+                        <td>${t.toStationName}</td>
+                        <td><span class="badge ${t.isPermanent ? 'badge-danger' : 'badge-warning'}">${t.isPermanent ? 'Permanent' : 'Temporary'}</span></td>
+                        <td><span class="badge ${t.isApproved ? 'badge-success' : 'badge-secondary'}">${t.isApproved ? 'Approved' : 'Pending'}</span></td>
+                        <td style="font-size:12px;">${new Date(t.startDate).toLocaleDateString()}</td>
+                        <td style="font-size:12px;">${t.endDate ? new Date(t.endDate).toLocaleDateString() : "-"}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                "Open": "badge-success",
+                "Closed": "badge-secondary",
+                "Pending": "badge-warning",
+                "Archived": "badge-secondary"
+            };
+            return map[status] || "badge-secondary";
+        }
+
+        function showAlert(msg, type) {
+            const box = document.getElementById("alertBox");
+            box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = "", 4000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        window.onload = loadProfile;
+    </script>
+
+</body>
+</html>

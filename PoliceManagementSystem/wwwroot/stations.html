@@ -38,6 +38,12 @@
                 <a href="transfers.html" class="sidebar-link">
                     <span class="nav-icon">🔄</span> Transfers
                 </a>
+                <a href="profile.html" class="sidebar-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link" id="usersLink" style="display:none;">
+                    <span class="nav-icon">👥</span> Users
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">⬅ Logout</button>
@@ -127,6 +133,10 @@
         const role = localStorage.getItem("role") || "-";
         document.getElementById("navUsername").textContent = username;
         document.getElementById("navRole").textContent = role;
+
+        if (hasRole(["Admin"])) {
+            document.getElementById("usersLink").style.display = "flex";
+        }
 
         if (hasRole(["Admin", "ChiefInspector"])) {
             document.getElementById("addBtn").style.display = "flex";

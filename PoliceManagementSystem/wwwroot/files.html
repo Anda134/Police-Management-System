@@ -38,6 +38,12 @@
                 <a href="transfers.html" class="sidebar-link">
                     <span class="nav-icon">🔄</span> Transfers
                 </a>
+                <a href="profile.html" class="sidebar-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link" id="usersLink" style="display:none;">
+                    <span class="nav-icon">👥</span> Users
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">⬅ Logout</button>
@@ -198,7 +204,7 @@
         </div>
     </div>
 
-    <!-- Transfer Modal REQ-60, REQ-61 -->
+    <!-- Transfer Modal -->
     <div class="modal-overlay" id="transferModal">
         <div class="modal-card" style="width:440px;">
             <div class="modal-title">🔄 Transfer File to Another Station</div>
@@ -227,6 +233,10 @@
 
         document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
         document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
+
+        if (hasRole(["Admin"])) {
+            document.getElementById("usersLink").style.display = "flex";
+        }
 
         if (hasRole(["Admin", "ChiefInspector", "StationHead", "Agent"])) {
             document.getElementById("addFileBtn").style.display = "flex";
@@ -278,18 +288,18 @@
 
             files.forEach(file => {
                 tbody.innerHTML += `
-                    <tr style="cursor:pointer;" onclick="selectFile(${file.id})">
-                        <td style="font-weight:600;">${file.title}</td>
-                        <td><span class="badge badge-info">${file.category}</span></td>
-                        <td><span class="badge ${getStatusBadge(file.status)}">${file.status}</span></td>
-                        <td>${file.policeStationName || "-"}</td>
-                        <td>${file.agentName || "-"}</td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();selectFile(${file.id})">✏️</button>
-                            <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteFile(${file.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                        <tr style="cursor:pointer;" onclick="selectFile(${file.id})">
+                            <td style="font-weight:600;">${file.title}</td>
+                            <td><span class="badge badge-info">${file.category}</span></td>
+                            <td><span class="badge ${getStatusBadge(file.status)}">${file.status}</span></td>
+                            <td>${file.policeStationName || "-"}</td>
+                            <td>${file.agentName || "-"}</td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();selectFile(${file.id})">✏️</button>
+                                <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();deleteFile(${file.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
             });
         }
 
@@ -303,9 +313,6 @@
             return map[status] || "badge-secondary";
         }
 
-        /**
-         * REQ-51: Select and view file details.
-         */
         function selectFile(id) {
             const file = allFiles.find(f => f.id === id);
             if (!file) return;
@@ -331,15 +338,11 @@
             document.getElementById("deleteBtn").style.display = "inline-flex";
             document.getElementById("formError").style.display = "none";
 
-            // Transfer button only for Admin, ChiefInspector, StationHead
             if (hasRole(["Admin", "ChiefInspector", "StationHead"])) {
                 document.getElementById("transferBtn").style.display = "inline-flex";
             }
         }
 
-        /**
-         * REQ-49: Open form for new file.
-         */
         function openNewFileForm() {
             currentFileId = null;
             isNewFile = true;
@@ -364,9 +367,6 @@
             document.getElementById("formError").style.display = "none";
         }
 
-        /**
-         * REQ-49, REQ-52, REQ-53: Save file to API.
-         */
         async function saveFile() {
             const title = document.getElementById("formTitle2").value.trim();
             const category = document.getElementById("formCategory").value;
@@ -411,17 +411,12 @@
             }
         }
 
-        /**
-         * REQ-60, REQ-61: Open transfer modal.
-         */
         function openTransferModal() {
             if (!currentFileId) return;
-
             const file = allFiles.find(f => f.id === currentFileId);
             if (!file) return;
 
             document.getElementById("transferCurrentStation").value = file.policeStationName;
-
             const destSel = document.getElementById("transferDestStation");
             destSel.innerHTML = `<option value="">Select destination station...</option>`;
             allStations
@@ -436,12 +431,8 @@
             document.getElementById("transferModal").classList.remove("open");
         }
 
-        /**
-         * REQ-60, REQ-61, REQ-62, REQ-63, REQ-64: Transfer file to another station.
-         */
         async function transferFile() {
             const newStationId = parseInt(document.getElementById("transferDestStation").value);
-
             if (isNaN(newStationId)) {
                 document.getElementById("transferError").textContent = "Please select a destination station.";
                 document.getElementById("transferError").style.display = "block";
@@ -469,9 +460,6 @@
             }
         }
 
-        /**
-         * REQ-56: Export criminal file as PDF.
-         */
         function exportPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -563,13 +551,13 @@
                 } else {
                     history.forEach(h => {
                         tbody.innerHTML += `
-                            <tr>
-                                <td>${new Date(h.changedAt).toLocaleString()}</td>
-                                <td>${h.changeType}</td>
-                                <td><span class="badge ${getStatusBadge(h.status)}">${h.status}</span></td>
-                                <td>${h.changedByUsername || "-"}</td>
-                            </tr>
-                        `;
+                                <tr>
+                                    <td>${new Date(h.changedAt).toLocaleString()}</td>
+                                    <td>${h.changeType}</td>
+                                    <td><span class="badge ${getStatusBadge(h.status)}">${h.status}</span></td>
+                                    <td>${h.changedByUsername || "-"}</td>
+                                </tr>
+                            `;
                     });
                 }
                 document.getElementById("historyModal").classList.add("open");

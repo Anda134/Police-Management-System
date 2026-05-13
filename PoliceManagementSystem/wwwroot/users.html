@@ -1,0 +1,287 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Police Inspectorate</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <a href="index.html" class="sidebar-brand">
+                <div class="sidebar-brand-icon">🛡️</div>
+                Police Inspectorate
+            </a>
+            <div class="sidebar-user">
+                <div class="sidebar-user-name" id="navUsername">-</div>
+                <div class="sidebar-user-role" id="navRole">-</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="sidebar-link">
+                    <span class="nav-icon">🏠</span> Dashboard
+                </a>
+                <a href="stations.html" class="sidebar-link">
+                    <span class="nav-icon">🏢</span> Stations
+                </a>
+                <a href="agents.html" class="sidebar-link">
+                    <span class="nav-icon">👮</span> Personnel
+                </a>
+                <a href="files.html" class="sidebar-link">
+                    <span class="nav-icon">📁</span> Case Files
+                </a>
+                <a href="conferences.html" class="sidebar-link">
+                    <span class="nav-icon">📞</span> Communications
+                </a>
+                <a href="transfers.html" class="sidebar-link">
+                    <span class="nav-icon">🔄</span> Transfers
+                </a>
+                <a href="profile.html" class="sidebar-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link active" id="usersLink">
+                    <span class="nav-icon">👥</span> Users
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="logout()">⬅ Logout</button>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="page-header">
+                <h1>👥 User Management</h1>
+                <p>Manage system user accounts</p>
+            </div>
+
+            <div id="alertBox"></div>
+
+            <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;">
+
+                <div class="card">
+                    <div class="card-header-row">
+                        <span class="card-title">👥 System Users</span>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-row">
+                        <span class="card-title">➕ Add New User</span>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <div class="form-group">
+                            <label class="form-label">Username *</label>
+                            <input type="text" class="form-control" id="newUsername" placeholder="e.g. ion.popescu">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="newEmail" placeholder="email@police.ro">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="newPassword" placeholder="Min 8 characters">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Role *</label>
+                            <select class="form-select" id="newRole">
+                                <option value="Agent">Agent</option>
+                                <option value="StationHead">Station Head</option>
+                                <option value="ChiefInspector">Chief Inspector</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Linked Agent</label>
+                            <select class="form-select" id="newAgentId">
+                                <option value="">None</option>
+                            </select>
+                        </div>
+
+                        <div id="formError" class="alert alert-danger" style="display:none;"></div>
+
+                        <button class="btn btn-primary" style="width:100%;" onclick="createUser()">
+                            ➕ Create User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="javascript/config.js"></script>
+    <script>
+        requireAuth();
+
+        const username = localStorage.getItem("username") || "-";
+        const role = localStorage.getItem("role") || "-";
+
+        document.getElementById("navUsername").textContent = username;
+        document.getElementById("navRole").textContent = role;
+
+        if (!hasRole(["Admin"])) {
+            window.location.href = "index.html";
+        }
+
+        let allAgents = [];
+
+        async function loadData() {
+            try {
+                const [usersRes, agentsRes] = await Promise.all([
+                    apiFetch(`${API_BASE_URL}/Auth/users`),
+                    apiFetch(`${API_BASE_URL}/Agent`)
+                ]);
+
+                if (agentsRes) {
+                    allAgents = await agentsRes.json();
+                    const agentSel = document.getElementById("newAgentId");
+                    agentSel.innerHTML = `<option value="">None</option>`;
+                    allAgents.forEach(a => {
+                        agentSel.innerHTML += `<option value="${a.id}">${a.firstName} ${a.lastName} (${a.role})</option>`;
+                    });
+                }
+
+                if (usersRes) {
+                    const users = await usersRes.json();
+                    renderUsers(users);
+                }
+            } catch (err) {
+                showAlert("Failed to load data.", "danger");
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById("usersTableBody");
+            tbody.innerHTML = "";
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No users found.</td></tr>`;
+                return;
+            }
+
+            const currentUsername = localStorage.getItem("username");
+
+            users.forEach(u => {
+                const isCurrentUser = u.username === currentUsername;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;">
+                                    ${u.username[0].toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600;font-size:13px;">${u.username}</div>
+                                    ${isCurrentUser ? '<span class="badge badge-info" style="font-size:10px;">You</span>' : ""}
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-size:12px;">${u.email}</td>
+                        <td><span class="badge ${getRoleBadge(u.role)}">${u.role}</span></td>
+                        <td><span class="badge ${u.isActive ? 'badge-success' : 'badge-secondary'}">${u.isActive ? '✅ Active' : '❌ Inactive'}</span></td>
+                        <td style="font-size:12px;">${u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : "Never"}</td>
+                        <td>
+                            ${!isCurrentUser ? `
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id}, '${u.username}')">🗑️</button>
+                            ` : "-"}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function getRoleBadge(role) {
+            const map = {
+                "Admin": "badge-danger",
+                "ChiefInspector": "badge-info",
+                "StationHead": "badge-warning",
+                "Agent": "badge-secondary"
+            };
+            return map[role] || "badge-secondary";
+        }
+
+        async function createUser() {
+            const username = document.getElementById("newUsername").value.trim();
+            const email = document.getElementById("newEmail").value.trim();
+            const password = document.getElementById("newPassword").value;
+            const role = document.getElementById("newRole").value;
+            const agentId = document.getElementById("newAgentId").value
+                ? parseInt(document.getElementById("newAgentId").value)
+                : null;
+
+            if (!username || !email || !password) {
+                document.getElementById("formError").textContent = "Username, email and password are required.";
+                document.getElementById("formError").style.display = "block";
+                return;
+            }
+
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/Auth/register`, {
+                    method: "POST",
+                    body: JSON.stringify({ username, email, password, role, agentId })
+                });
+
+                if (res && res.ok) {
+                    document.getElementById("newUsername").value = "";
+                    document.getElementById("newEmail").value = "";
+                    document.getElementById("newPassword").value = "";
+                    document.getElementById("newRole").value = "Agent";
+                    document.getElementById("newAgentId").value = "";
+                    document.getElementById("formError").style.display = "none";
+                    await loadData();
+                    showAlert("User created successfully.", "success");
+                } else {
+                    const err = await res.text();
+                    document.getElementById("formError").textContent = err || "Failed to create user.";
+                    document.getElementById("formError").style.display = "block";
+                }
+            } catch (err) {
+                document.getElementById("formError").textContent = "Connection error.";
+                document.getElementById("formError").style.display = "block";
+            }
+        }
+
+        async function deleteUser(id, username) {
+            if (!confirm(`Are you sure you want to delete user "${username}"?`)) return;
+            try {
+                const res = await apiFetch(`${API_BASE_URL}/Auth/users/${id}`, { method: "DELETE" });
+                if (res && res.ok) {
+                    await loadData();
+                    showAlert("User deleted successfully.", "success");
+                } else {
+                    showAlert("Failed to delete user.", "danger");
+                }
+            } catch (err) {
+                showAlert("Connection error.", "danger");
+            }
+        }
+
+        function showAlert(msg, type) {
+            const box = document.getElementById("alertBox");
+            box.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = "", 4000);
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+
+        window.onload = loadData;
+    </script>
+
+</body>
+</html>

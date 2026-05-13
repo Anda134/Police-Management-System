@@ -18,5 +18,12 @@ namespace PoliceManagementSystem.Services.Interfaces
         /// <summary>Finds a user by username.</summary>
         /// <param name="username">The username to search for.</param>
         Task<User?> GetByUsernameAsync(string username);
+
+        /// <summary>Returns all users. Admin only (REQ-76).</summary>
+        Task<IEnumerable<object>> GetAllUsersAsync();
+
+        /// <summary>Deletes a user by ID. Admin only (REQ-76).</summary>
+        /// <param name="id">The user ID to delete.</param>
+        Task<bool> DeleteUserAsync(int id);
     }
 }
