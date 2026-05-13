@@ -158,24 +158,36 @@ namespace PoliceManagementSystem.Tests
             );
         }
 
-        /// <summary>REQ-18: DeleteAsync should remove agent from database.</summary>
+        /// <summary>REQ-18: DeleteAsync should remove agent, clear subordinates and delete associated user.</summary>
         [Fact]
         public async Task DeleteAsync_ExistingAgent_ReturnsTrue()
         {
             // Arrange
             var context = CreateInMemoryContext();
             var station = await SeedStationAsync(context);
-            var agent = new Agent { FirstName = "Ion", LastName = "Pop", Badge = "A1", Role = "Agent", PoliceStationId = station.Id };
-            context.Agents.Add(agent);
+
+            var superior = new Agent { FirstName = "Ion", LastName = "Pop", Badge = "A1", Role = "Agent", PoliceStationId = station.Id };
+            context.Agents.Add(superior);
             await context.SaveChangesAsync();
+
+            var subordinate = new Agent { FirstName = "Maria", LastName = "Ion", Badge = "A2", Role = "Agent", PoliceStationId = station.Id, SuperiorId = superior.Id };
+            context.Agents.Add(subordinate);
+            await context.SaveChangesAsync();
+
+            var user = new User { Username = "ion.pop", Email = "ion@police.ro", PasswordHash = "hash", Role = UserRole.Agent, AgentId = superior.Id, IsActive = true, CreatedAt = DateTime.UtcNow };
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
             var service = new AgentService(context);
 
             // Act
-            var result = await service.DeleteAsync(agent.Id);
+            var result = await service.DeleteAsync(superior.Id);
 
             // Assert
             Assert.True(result);
-            Assert.Equal(0, context.Agents.Count());
+            Assert.Equal(1, context.Agents.Count());
+            Assert.Null(context.Agents.First().SuperiorId);
+            Assert.Equal(0, context.Users.Count());
         }
 
         /// <summary>GetByIdAsync with non-existent ID should return null.</summary>
