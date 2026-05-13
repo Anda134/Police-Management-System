@@ -39,6 +39,12 @@
                 <a href="transfers.html" class="sidebar-link">
                     <span class="nav-icon">🔄</span> Transfers
                 </a>
+                <a href="profile.html" class="sidebar-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link" id="usersLink" style="display:none;">
+                    <span class="nav-icon">👥</span> Users
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">⬅ Logout</button>
@@ -174,6 +180,10 @@
 
         document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
         document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
+
+        if (hasRole(["Admin"])) {
+            document.getElementById("usersLink").style.display = "flex";
+        }
 
         const map = L.map("map").setView([44.3302, 23.7949], 13);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

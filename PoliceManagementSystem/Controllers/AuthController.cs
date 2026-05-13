@@ -63,5 +63,24 @@ namespace PoliceManagementSystem.Controllers
             var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
             return Ok(new { username, role });
         }
+
+        /// <summary>Returns all users. Admin only (REQ-76).</summary>
+        [HttpGet("users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _authService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        /// <summary>Deletes a user account. Admin only (REQ-76).</summary>
+        /// <param name="id">The user ID to delete.</param>
+        [HttpDelete("users/{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var result = await _authService.DeleteUserAsync(id);
+            return result ? NoContent() : NotFound();
+        }
     }
 }

@@ -37,6 +37,12 @@
                 <a href="transfers.html" class="sidebar-link">
                     <span class="nav-icon">🔄</span> Transfers
                 </a>
+                <a href="profile.html" class="sidebar-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link" id="usersLink" style="display:none;">
+                    <span class="nav-icon">👥</span> Users
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">⬅ Logout</button>
@@ -153,7 +159,6 @@
 
             <ul id="participantsList" style="list-style:none;padding:0;margin:0 0 16px 0;"></ul>
 
-            <!-- Edit section - only for Admin/ChiefInspector REQ-35 -->
             <div id="editParticipantsSection" style="display:none;">
                 <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;">
                     <label class="form-label">Add Participants</label>
@@ -180,6 +185,10 @@
 
         document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
         document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
+
+        if (hasRole(["Admin"])) {
+            document.getElementById("usersLink").style.display = "flex";
+        }
 
         let allConferences = [];
         let allAgents = [];
@@ -219,10 +228,6 @@
             });
         }
 
-        /**
-         * REQ-45: Show priority badge when ChiefInspector is selected.
-         * REQ-46: Check for scheduling conflicts.
-         */
         document.getElementById("conferenceOrganizer").addEventListener("change", function () {
             const selected = allAgents.find(a => a.id === parseInt(this.value));
             document.getElementById("priorityBadge").style.display =
@@ -232,9 +237,6 @@
 
         document.getElementById("conferenceTime").addEventListener("change", checkConflicts);
 
-        /**
-         * REQ-46: Detect scheduling conflicts based on priority.
-         */
         function checkConflicts() {
             const timeVal = document.getElementById("conferenceTime").value;
             const organizerId = parseInt(document.getElementById("conferenceOrganizer").value);
@@ -253,9 +255,6 @@
             document.getElementById("conflictWarning").style.display = conflict ? "block" : "none";
         }
 
-        /**
-         * REQ-48: Render calendar with conference markers.
-         */
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -277,16 +276,16 @@
             });
 
             let html = `
-                <table style="width:100%;border-collapse:collapse;font-size:12px;">
-                    <thead>
-                        <tr>
-                            ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d =>
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                        <thead>
+                            <tr>
+                                ${["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d =>
                 `<th style="text-align:center;padding:6px;color:var(--text-secondary);font-weight:600;">${d}</th>`
             ).join("")}
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
 
             let day = 1;
             for (let row = 0; row < 6; row++) {
@@ -303,18 +302,15 @@
                         const isSelected = day === selectedDay;
 
                         html += `
-                            <td onclick="selectDay(${day})" style="
-                                text-align:center;
-                                padding:6px 4px;
-                                cursor:pointer;
-                                border-radius:8px;
-                                background:${isSelected ? 'var(--accent-blue)' : isToday ? 'rgba(21,101,192,0.2)' : 'transparent'};
-                                color:${isSelected ? 'white' : 'var(--text-primary)'};
-                            ">
-                                ${day}
-                                ${hasConf ? `<div style="width:6px;height:6px;background:#00bcd4;border-radius:50%;margin:2px auto 0;"></div>` : ""}
-                            </td>
-                        `;
+                                <td onclick="selectDay(${day})" style="
+                                    text-align:center;padding:6px 4px;cursor:pointer;border-radius:8px;
+                                    background:${isSelected ? 'var(--accent-blue)' : isToday ? 'rgba(21,101,192,0.2)' : 'transparent'};
+                                    color:${isSelected ? 'white' : 'var(--text-primary)'};
+                                ">
+                                    ${day}
+                                    ${hasConf ? `<div style="width:6px;height:6px;background:#00bcd4;border-radius:50%;margin:2px auto 0;"></div>` : ""}
+                                </td>
+                            `;
                         day++;
                     }
                 }
@@ -378,25 +374,22 @@
                     : `<span class="badge badge-secondary">NORMAL</span>`;
 
                 tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight:600;">${c.reason}</td>
-                        <td><span class="badge badge-info">${c.callsign}</span></td>
-                        <td>${c.organizerName || "-"}</td>
-                        <td>${new Date(c.scheduledAt).toLocaleString()}</td>
-                        <td>${priorityBadge}</td>
-                        <td><span class="badge ${isUpcoming ? 'badge-success' : 'badge-secondary'}">${isUpcoming ? 'Upcoming' : 'Past'}</span></td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm" onclick="viewParticipants(${c.id})">👥</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteConference(${c.id})">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                        <tr>
+                            <td style="font-weight:600;">${c.reason}</td>
+                            <td><span class="badge badge-info">${c.callsign}</span></td>
+                            <td>${c.organizerName || "-"}</td>
+                            <td>${new Date(c.scheduledAt).toLocaleString()}</td>
+                            <td>${priorityBadge}</td>
+                            <td><span class="badge ${isUpcoming ? 'badge-success' : 'badge-secondary'}">${isUpcoming ? 'Upcoming' : 'Past'}</span></td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="viewParticipants(${c.id})">👥</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteConference(${c.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
             });
         }
 
-        /**
-         * REQ-41 to REQ-46: Create conference with priority handling.
-         */
         async function createConference() {
             const reason = document.getElementById("conferenceReason").value.trim();
             const callsign = document.getElementById("conferenceCallsign").value.trim();
@@ -441,9 +434,6 @@
             }
         }
 
-        /**
-         * REQ-36, REQ-35: View and edit participants.
-         */
         async function viewParticipants(id) {
             try {
                 const res = await apiFetch(`${API_BASE_URL}/Conference/${id}`);
@@ -460,15 +450,13 @@
                 } else {
                     conf.participantNames.forEach(name => {
                         list.innerHTML += `
-                            <li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
-                                👮 ${name}
-                            </li>
-                        `;
+                                <li style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
+                                    👮 ${name}
+                                </li>
+                            `;
                     });
                 }
 
-                // REQ-35: Only Admin/ChiefInspector/Organizer can add participants
-                
                 const editSection = document.getElementById("editParticipantsSection");
                 const organizer = allAgents.find(a => a.id === conf.organizerId);
                 const organizerFullName = organizer ? `${organizer.firstName} ${organizer.lastName}` : "";
@@ -498,9 +486,6 @@
             }
         }
 
-        /**
-         * REQ-35: Add participants to conference.
-         */
         async function addParticipants() {
             const selectedIds = Array.from(document.getElementById("addParticipantSelect").options)
                 .filter(o => o.selected)
@@ -515,18 +500,13 @@
             try {
                 const res = await apiFetch(
                     `${API_BASE_URL}/Conference/${currentConferenceId}/participants`,
-                    {
-                        method: "PATCH",
-                        body: JSON.stringify(selectedIds)
-                    }
+                    { method: "PATCH", body: JSON.stringify(selectedIds) }
                 );
 
                 if (res && res.ok) {
                     closeParticipants();
                     await loadData();
-                    showAlert("Participants added successfully.", "success");
-                    // REQ-47: Notify in UI
-                    showAlert(`✅ REQ-47: ${selectedIds.length} participant(s) notified of the conference.`, "success");
+                    showAlert(`✅ ${selectedIds.length} participant(s) added successfully.`, "success");
                 } else {
                     document.getElementById("participantsError").textContent = "Failed to add participants.";
                     document.getElementById("participantsError").style.display = "block";

@@ -98,6 +98,35 @@ namespace PoliceManagementSystem.Services
         public async Task<User?> GetByUsernameAsync(string username)
             => await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
 
+        /// <summary>Returns all users (REQ-76).</summary>
+        public async Task<IEnumerable<object>> GetAllUsersAsync()
+        {
+            return await _context.Users
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Username,
+                    u.Email,
+                    Role = u.Role.ToString(),
+                    u.IsActive,
+                    u.LastLoginAt,
+                    u.CreatedAt
+                })
+                .ToListAsync<object>();
+        }
+
+        /// <summary>Deletes a user by ID (REQ-76).</summary>
+        /// <param name="id">The user ID to delete.</param>
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user is null) return false;
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         /// <summary>Generates a signed JWT token for the given user.</summary>
         /// <param name="user">The authenticated user.</param>
         private string GenerateJwtToken(User user)

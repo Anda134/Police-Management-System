@@ -129,12 +129,37 @@ namespace PoliceManagementSystem.Services
             return true;
         }
 
-        /// <summary>Deletes an agent by ID.</summary>
+        /// <summary>Deletes an agent by ID and all associated data (REQ-18).</summary>
         /// <param name="id">The agent ID.</param>
         public async Task<bool> DeleteAsync(int id)
         {
             var agent = await _context.Agents.FindAsync(id);
             if (agent is null) return false;
+
+            // Elimina referintele de superior
+            var subordinates = await _context.Agents
+                .Where(a => a.SuperiorId == id)
+                .ToListAsync();
+            foreach (var sub in subordinates)
+                sub.SuperiorId = null;
+
+            // Sterge conferintele organizate de agent
+            var conferences = await _context.Conferences
+                .Where(c => c.OrganizerId == id)
+                .ToListAsync();
+            _context.Conferences.RemoveRange(conferences);
+
+            // Sterge transferurile asociate
+            var transfers = await _context.AgentTransfers
+                .Where(t => t.AgentId == id)
+                .ToListAsync();
+            _context.AgentTransfers.RemoveRange(transfers);
+
+            // Sterge userul asociat daca exista
+            var associatedUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.AgentId == id);
+            if (associatedUser != null)
+                _context.Users.Remove(associatedUser);
 
             _context.Agents.Remove(agent);
             await _context.SaveChangesAsync();

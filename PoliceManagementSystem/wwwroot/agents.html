@@ -37,6 +37,12 @@
                 <a href="transfers.html" class="sidebar-link">
                     <span class="nav-icon">🔄</span> Transfers
                 </a>
+                <a href="profile.html" class="sidebar-link">
+                    <span class="nav-icon">👤</span> Profile
+                </a>
+                <a href="users.html" class="sidebar-link" id="usersLink" style="display:none;">
+                    <span class="nav-icon">👥</span> Users
+                </a>
             </nav>
             <div class="sidebar-footer">
                 <button class="btn-logout" onclick="logout()">⬅ Logout</button>
@@ -192,6 +198,10 @@
         document.getElementById("navUsername").textContent = localStorage.getItem("username") || "-";
         document.getElementById("navRole").textContent = localStorage.getItem("role") || "-";
 
+        if (hasRole(["Admin"])) {
+            document.getElementById("usersLink").style.display = "flex";
+        }
+
         if (hasRole(["Admin", "ChiefInspector"])) {
             document.getElementById("addAgentBtn").style.display = "flex";
         }
@@ -200,17 +210,11 @@
         let allStations = [];
         let editingId = null;
 
-        /**
-         * Toggle add form visibility.
-         */
         function toggleForm() {
             const form = document.getElementById("createFormCard");
             form.style.display = form.style.display === "none" ? "block" : "none";
         }
 
-        /**
-         * REQ-17: Load all agents and stations.
-         */
         async function loadData() {
             try {
                 const [agentsRes, stationsRes] = await Promise.all([
@@ -229,9 +233,6 @@
             }
         }
 
-        /**
-         * Populate station dropdowns.
-         */
         function populateStationDropdowns() {
             const selects = ["agentStation", "editStation"];
             selects.forEach(id => {
@@ -244,11 +245,6 @@
             });
         }
 
-        /**
-         * REQ-21: Populate superior dropdown excluding current agent.
-         * @param {string} selectId - The select element ID.
-         * @param {number|null} excludeId - Agent ID to exclude.
-         */
         function populateSuperiorDropdown(selectId, excludeId) {
             const sel = document.getElementById(selectId);
             if (!sel) return;
@@ -260,9 +256,6 @@
                 });
         }
 
-        /**
-         * REQ-17, REQ-19, REQ-21: Render agents table.
-         */
         function renderTable() {
             const tbody = document.getElementById("agentsTableBody");
             tbody.innerHTML = "";
@@ -275,33 +268,33 @@
             allAgents.forEach(agent => {
                 const canEdit = hasRole(["Admin", "ChiefInspector"]);
                 tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div style="display:flex;align-items:center;gap:10px;">
-                                <div class="agent-avatar" style="width:32px;height:32px;font-size:11px;">
-                                    ${agent.profileImageUrl
+                        <tr>
+                            <td>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div class="agent-avatar" style="width:32px;height:32px;font-size:11px;">
+                                        ${agent.profileImageUrl
                         ? `<img src="${agent.profileImageUrl}" alt="${agent.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
                         : `${agent.firstName[0]}${agent.lastName?.[0] || ""}`
                     }
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:600;font-size:13px;">${agent.firstName} ${agent.lastName}</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div style="font-weight:600;font-size:13px;">${agent.firstName} ${agent.lastName}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${agent.badge}</td>
-                        <td><span class="badge ${roleBadgeClass(agent.role)}">${agent.role}</span></td>
-                        <td>${agent.policeStationName}</td>
-                        <td>${agent.roomAssignment || "-"}</td>
-                        <td>${agent.superiorName || "-"}</td>
-                        <td>
-                            ${canEdit ? `
-                                <button class="btn btn-secondary btn-sm" onclick="openEditModal(${agent.id})">✏️</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteAgent(${agent.id})">🗑️</button>
-                            ` : "-"}
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                            <td>${agent.badge}</td>
+                            <td><span class="badge ${roleBadgeClass(agent.role)}">${agent.role}</span></td>
+                            <td>${agent.policeStationName}</td>
+                            <td>${agent.roomAssignment || "-"}</td>
+                            <td>${agent.superiorName || "-"}</td>
+                            <td>
+                                ${canEdit ? `
+                                    <button class="btn btn-secondary btn-sm" onclick="openEditModal(${agent.id})">✏️</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteAgent(${agent.id})">🗑️</button>
+                                ` : "-"}
+                            </td>
+                        </tr>
+                    `;
             });
         }
 
@@ -312,9 +305,6 @@
             return "badge-secondary";
         }
 
-        /**
-         * REQ-17: Create new agent.
-         */
         async function createAgent() {
             const firstName = document.getElementById("agentFirstName").value.trim();
             const lastName = document.getElementById("agentLastName").value.trim();
@@ -355,10 +345,6 @@
             }
         }
 
-        /**
-         * REQ-19: Open edit modal for agent.
-         * @param {number} id - Agent ID to edit.
-         */
         function openEditModal(id) {
             const agent = allAgents.find(a => a.id === id);
             if (!agent) return;
@@ -384,9 +370,6 @@
             document.getElementById("editModal").classList.remove("open");
         }
 
-        /**
-         * REQ-19, REQ-21: Save edited agent.
-         */
         async function saveEdit() {
             const firstName = document.getElementById("editFirstName").value.trim();
             const lastName = document.getElementById("editLastName").value.trim();
@@ -430,10 +413,6 @@
             }
         }
 
-        /**
-         * REQ-18: Delete agent.
-         * @param {number} id - Agent ID to delete.
-         */
         async function deleteAgent(id) {
             if (!confirm("Are you sure you want to delete this agent?")) return;
 
