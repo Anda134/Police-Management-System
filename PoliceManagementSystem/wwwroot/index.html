@@ -10,7 +10,6 @@
 <body>
     <div class="app-shell">
 
-        <!-- Sidebar REQ-73, REQ-75 -->
         <aside class="sidebar">
             <a href="index.html" class="sidebar-brand">
                 <div class="sidebar-brand-icon">🛡️</div>
@@ -51,16 +50,14 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <div class="main-content">
 
             <div class="page-header">
                 <h1>🗺️ Dashboard</h1>
                 <p>Police stations overview and personnel allocation</p>
             </div>
-        </aside>
 
-            <!-- Stats Grid REQ-9 -->
+            <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="card">
                     <div class="stat-card">
@@ -94,7 +91,7 @@
             <!-- Dashboard Grid -->
             <div class="dashboard-grid">
 
-                <!-- Harta REQ-9, REQ-10, REQ-11, REQ-12 -->
+                <!-- Harta -->
                 <div class="card">
                     <div class="card-header-row">
                         <span class="card-title">🗺️ Station Map</span>
@@ -102,7 +99,7 @@
                             <button class="btn btn-secondary btn-sm" onclick="toggleConnections()">
                                 👁️ Hide Connections
                             </button>
-                            <button class="btn btn-primary btn-sm" onclick="enableAddStation()">
+                            <button class="btn btn-primary btn-sm" id="addStationBtn" style="display:none;" onclick="enableAddStation()">
                                 ➕ Add Station
                             </button>
                         </div>
@@ -113,9 +110,8 @@
                     </div>
                 </div>
 
-                <!-- Panel Detalii Statie REQ-15 -->
+                <!-- Panel Detalii Statie -->
                 <div class="details-panel">
-
                     <div class="card" id="precinctDetails">
                         <h5>📍 Precinct Details</h5>
                         <div class="placeholder-message">
@@ -137,14 +133,12 @@
                         <h5>🕐 Recent Activity</h5>
                         <div id="activityContent" class="placeholder-message"></div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- REQ-5: Modal plasare stație pe hartă -->
+    <!-- Modal Add Station -->
     <div id="addStationModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
         <div class="card" style="width:420px;padding:28px;">
             <h5>📍 Add New Station</h5>
@@ -183,6 +177,10 @@
 
         if (hasRole(["Admin"])) {
             document.getElementById("usersLink").style.display = "flex";
+        }
+
+        if (hasRole(["Admin", "ChiefInspector"])) {
+            document.getElementById("addStationBtn").style.display = "flex";
         }
 
         const map = L.map("map").setView([44.3302, 23.7949], 13);
@@ -231,9 +229,6 @@
             }
         }
 
-        /**
-         * REQ-10: Draw markers for all stations.
-         */
         function drawMarkers() {
             allStations.forEach(station => {
                 const marker = L.marker([station.latitude, station.longitude], { icon: policeIcon })
@@ -248,9 +243,6 @@
             });
         }
 
-        /**
-         * REQ-11, REQ-12: Draw dashed lines between stations with distance labels.
-         */
         function drawConnections() {
             stationLines.forEach(l => map.removeLayer(l));
             stationLines = [];
@@ -275,9 +267,6 @@
             }
         }
 
-        /**
-         * REQ-16: Toggle visibility of interconnection lines.
-         */
         let connectionsVisible = true;
         function toggleConnections() {
             connectionsVisible = !connectionsVisible;
@@ -289,18 +278,12 @@
                 connectionsVisible ? "👁️ Hide Connections" : "👁️ Show Connections";
         }
 
-        /**
-         * REQ-5: Enable add station mode - next click on map places a station.
-         */
         function enableAddStation() {
             addingStation = true;
             document.getElementById("mapClickHint").style.display = "block";
             map.getContainer().style.cursor = "crosshair";
         }
 
-        /**
-         * REQ-5: Handle map click to place new station.
-         */
         map.on("click", function (e) {
             if (!addingStation) return;
 
@@ -323,9 +306,6 @@
             map.getContainer().style.cursor = "";
         });
 
-        /**
-         * REQ-5, REQ-7, REQ-8: Save new station to API.
-         */
         async function saveNewStation() {
             const name = document.getElementById("modalStationName").value.trim();
             const address = document.getElementById("modalStationAddress").value.trim();
@@ -341,13 +321,11 @@
             try {
                 const res = await apiFetch(`${API_BASE_URL}/PoliceStation`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ name, address, latitude: lat, longitude: lng })
                 });
 
                 if (res && res.ok) {
                     closeModal();
-                    // REQ-13: Reload map after adding station
                     await loadMap();
                 } else {
                     document.getElementById("modalError").textContent = "Failed to create station.";
@@ -359,9 +337,6 @@
             }
         }
 
-        /**
-         * Close add station modal and remove temp marker.
-         */
         function closeModal() {
             document.getElementById("addStationModal").style.display = "none";
             if (tempMarker) {
@@ -370,21 +345,18 @@
             }
         }
 
-        /**
-         * REQ-15: Show detailed information for selected station.
-         */
         function showStationDetails(station) {
             document.getElementById("precinctDetails").innerHTML = `
-                <h5>📍 Precinct Details</h5>
-                <div class="station-detail-card">
-                    <div class="station-icon">🛡️</div>
-                    <div>
-                        <div class="station-name">${station.name}</div>
-                        <div class="station-address">${station.address || "No address"}</div>
+                    <h5>📍 Precinct Details</h5>
+                    <div class="station-detail-card">
+                        <div class="station-icon">🛡️</div>
+                        <div>
+                            <div class="station-name">${station.name}</div>
+                            <div class="station-address">${station.address || "No address"}</div>
+                        </div>
                     </div>
-                </div>
-                <div class="station-coords">📍 ${station.latitude}, ${station.longitude}</div>
-            `;
+                    <div class="station-coords">📍 ${station.latitude}, ${station.longitude}</div>
+                `;
 
             const agents = allAgents.filter(a => a.policeStationId === station.id);
             const personnelCard = document.getElementById("precinctPersonnel");
@@ -392,11 +364,11 @@
 
             if (agents.length > 0) {
                 document.getElementById("personnelList").innerHTML = agents.map(a => `
-                    <li class="personnel-item">
-                        <span class="personnel-name">${a.firstName} ${a.lastName}</span>
-                        <span class="personnel-role">${a.role}</span>
-                    </li>
-                `).join("");
+                        <li class="personnel-item">
+                            <span class="personnel-name">${a.firstName} ${a.lastName}</span>
+                            <span class="personnel-role">${a.role}</span>
+                        </li>
+                    `).join("");
                 personnelCard.style.display = "block";
                 buildHierarchy(agents);
                 hierarchyCard.style.display = "block";
@@ -411,9 +383,6 @@
             activityCard.style.display = "block";
         }
 
-        /**
-         * REQ-22: Builds and renders the agent hierarchy tree.
-         */
         function buildHierarchy(agents) {
             const container = document.getElementById("hierarchyTree");
             const root = agents.find(a => a.role === "ChiefInspector") ||
@@ -433,11 +402,11 @@
                 agent.role === "StationHead" ? "station-head" : "";
 
             let html = `
-                <div class="hierarchy-node">
-                    <div class="hierarchy-card ${cardClass}" title="${agent.firstName} ${agent.lastName} (${agent.role})">
-                        ${agent.firstName} ${agent.lastName}
-                    </div>
-            `;
+                    <div class="hierarchy-node">
+                        <div class="hierarchy-card ${cardClass}" title="${agent.firstName} ${agent.lastName} (${agent.role})">
+                            ${agent.firstName} ${agent.lastName}
+                        </div>
+                `;
 
             if (children.length > 0) {
                 html += `<div class="hierarchy-connector-v"></div>`;
@@ -450,6 +419,11 @@
 
             html += `</div>`;
             return html;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "login.html";
         }
 
         window.onload = loadMap;

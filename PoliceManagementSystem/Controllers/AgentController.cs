@@ -48,7 +48,7 @@ namespace PoliceManagementSystem.Controllers
                 var created = await _service.CreateAsync(request);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
-            catch (InvalidOperationException ex) 
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -57,11 +57,12 @@ namespace PoliceManagementSystem.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        /// <summary>Updates an existing agent. Admin and ChiefInspector only (REQ-19).</summary>
+
+        /// <summary>Updates an existing agent. Admin, ChiefInspector and StationHead (REQ-19).</summary>
         /// <param name="id">The agent ID.</param>
         /// <param name="request">Updated agent data.</param>
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin,ChiefInspector")]
+        [Authorize(Roles = "Admin,ChiefInspector,StationHead")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAgentRequest request)
         {
             if (request is null || string.IsNullOrWhiteSpace(request.FirstName))
@@ -100,10 +101,10 @@ namespace PoliceManagementSystem.Controllers
             }
         }
 
-        /// <summary>Deletes an agent. Admin only.</summary>
+        /// <summary>Deletes an agent. Admin and ChiefInspector only (REQ-18).</summary>
         /// <param name="id">The agent ID.</param>
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,ChiefInspector")]
         public async Task<IActionResult> Delete(int id)
         {
             try
