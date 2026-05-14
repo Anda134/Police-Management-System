@@ -202,6 +202,7 @@
             document.getElementById("usersLink").style.display = "flex";
         }
 
+        // REQ-17: Only Admin and ChiefInspector can add agents
         if (hasRole(["Admin", "ChiefInspector"])) {
             document.getElementById("addAgentBtn").style.display = "flex";
         }
@@ -265,36 +266,39 @@
                 return;
             }
 
+            // REQ-18: Admin and ChiefInspector can edit and delete
+            // REQ-19: StationHead can edit but not delete or change role
+            const canEdit = hasRole(["Admin", "ChiefInspector", "StationHead"]);
+            const canDelete = hasRole(["Admin", "ChiefInspector"]);
+
             allAgents.forEach(agent => {
-                const canEdit = hasRole(["Admin", "ChiefInspector"]);
                 tbody.innerHTML += `
-                        <tr>
-                            <td>
-                                <div style="display:flex;align-items:center;gap:10px;">
-                                    <div class="agent-avatar" style="width:32px;height:32px;font-size:11px;">
-                                        ${agent.profileImageUrl
-                        ? `<img src="${agent.profileImageUrl}" alt="${agent.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
-                        : `${agent.firstName[0]}${agent.lastName?.[0] || ""}`
-                    }
-                                    </div>
-                                    <div>
-                                        <div style="font-weight:600;font-size:13px;">${agent.firstName} ${agent.lastName}</div>
-                                    </div>
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div class="agent-avatar" style="width:32px;height:32px;font-size:11px;">
+                                    ${agent.profileImageUrl
+                                        ? `<img src="${agent.profileImageUrl}" alt="${agent.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+                                        : `${agent.firstName[0]}${agent.lastName?.[0] || ""}`
+                                    }
                                 </div>
-                            </td>
-                            <td>${agent.badge}</td>
-                            <td><span class="badge ${roleBadgeClass(agent.role)}">${agent.role}</span></td>
-                            <td>${agent.policeStationName}</td>
-                            <td>${agent.roomAssignment || "-"}</td>
-                            <td>${agent.superiorName || "-"}</td>
-                            <td>
-                                ${canEdit ? `
-                                    <button class="btn btn-secondary btn-sm" onclick="openEditModal(${agent.id})">✏️</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteAgent(${agent.id})">🗑️</button>
-                                ` : "-"}
-                            </td>
-                        </tr>
-                    `;
+                                <div>
+                                    <div style="font-weight:600;font-size:13px;">${agent.firstName} ${agent.lastName}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${agent.badge}</td>
+                        <td><span class="badge ${roleBadgeClass(agent.role)}">${agent.role}</span></td>
+                        <td>${agent.policeStationName}</td>
+                        <td>${agent.roomAssignment || "-"}</td>
+                        <td>${agent.superiorName || "-"}</td>
+                        <td>
+                            ${canEdit ? `<button class="btn btn-secondary btn-sm" onclick="openEditModal(${agent.id})">✏️</button>` : ""}
+                            ${canDelete ? `<button class="btn btn-danger btn-sm" onclick="deleteAgent(${agent.id})">🗑️</button>` : ""}
+                            ${!canEdit && !canDelete ? "-" : ""}
+                        </td>
+                    </tr>
+                `;
             });
         }
 
@@ -357,6 +361,10 @@
             document.getElementById("editRoom").value = agent.roomAssignment || "Investigation Wing";
             document.getElementById("editError").style.display = "none";
 
+            // REQ-19: StationHead cannot change role
+            const canChangeRole = hasRole(["Admin", "ChiefInspector"]);
+            document.getElementById("editRole").disabled = !canChangeRole;
+
             populateStationDropdowns();
             document.getElementById("editStation").value = agent.policeStationId;
 
@@ -374,7 +382,10 @@
             const firstName = document.getElementById("editFirstName").value.trim();
             const lastName = document.getElementById("editLastName").value.trim();
             const badge = document.getElementById("editBadge").value.trim();
-            const role = document.getElementById("editRole").value;
+            const roleEl = document.getElementById("editRole");
+            const role = roleEl.disabled
+                ? allAgents.find(a => a.id === editingId)?.role || roleEl.value
+                : roleEl.value;
             const stationId = parseInt(document.getElementById("editStation").value);
             const room = document.getElementById("editRoom").value;
             const superiorId = document.getElementById("editSuperior").value
